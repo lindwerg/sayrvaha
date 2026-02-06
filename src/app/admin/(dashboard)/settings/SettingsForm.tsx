@@ -24,6 +24,7 @@ export default function SettingsForm({
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +39,10 @@ export default function SettingsForm({
       setError(result.error);
     } else {
       setSaved(true);
+      if (preview) {
+        URL.revokeObjectURL(preview);
+        setPreview(null);
+      }
       router.refresh();
       setTimeout(() => setSaved(false), 3000);
     }
@@ -75,17 +80,24 @@ export default function SettingsForm({
 
         <div>
           <label className="block text-sm mb-1.5">Фото баннера</label>
-          {settings?.heroImage?.asset?.url && (
+          {(preview || settings?.heroImage?.asset?.url) && (
             <img
-              src={settings.heroImage.asset.url}
+              src={preview || settings?.heroImage?.asset?.url || ""}
               alt="Hero"
-              className="w-48 h-28 object-cover rounded border border-border mb-2"
+              className="w-full max-w-md h-48 object-cover rounded border border-border mb-2"
             />
           )}
           <input
             type="file"
             name="heroImage"
             accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                if (preview) URL.revokeObjectURL(preview);
+                setPreview(URL.createObjectURL(file));
+              }
+            }}
             className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:border file:border-border file:bg-white file:text-sm file:text-foreground file:cursor-pointer hover:file:bg-warm-gray"
           />
           <p className="text-xs text-muted mt-1">
