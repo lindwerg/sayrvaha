@@ -7,8 +7,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 export default async function HomePage() {
   const [products, settings] = await Promise.all([
-    sanityFetch<Product[]>(PRODUCTS_QUERY),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY),
+    sanityFetch<Product[]>(PRODUCTS_QUERY, undefined, ["products"]),
+    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
   ]);
 
   return (

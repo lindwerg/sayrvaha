@@ -13,10 +13,10 @@ export const client = createClient({
 export async function sanityFetch<T>(
   query: string,
   params?: QueryParams,
+  tags?: string[],
 ): Promise<T | null> {
   if (!isSanityConfigured) return null;
-  if (params) {
-    return client.fetch<T>(query, params);
-  }
-  return client.fetch<T>(query);
+  return client.fetch<T>(query, params ?? {}, {
+    next: { tags: tags ?? [] },
+  });
 }

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactsPage() {
-  const settings = await sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY);
+  const settings = await sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]);
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">

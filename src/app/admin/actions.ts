@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   verifyPassword,
   setSessionCookie,
@@ -108,6 +108,7 @@ export async function createProductAction(formData: FormData) {
     images: newImageRefs,
   });
 
+  revalidateTag("products", "default");
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
   revalidatePath("/");
@@ -148,6 +149,7 @@ export async function updateProductAction(id: string, formData: FormData) {
     })
     .commit();
 
+  revalidateTag("products", "default");
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
   revalidatePath("/");
@@ -159,6 +161,7 @@ export async function deleteProductAction(formData: FormData) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
   const id = formData.get("id") as string;
   await writeClient.delete(id);
+  revalidateTag("products", "default");
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
   revalidatePath("/");
@@ -217,6 +220,7 @@ export async function updateSettingsAction(formData: FormData) {
     });
   }
 
+  revalidateTag("settings", "default");
   revalidatePath("/admin/settings");
   revalidatePath("/");
   revalidatePath("/contacts");

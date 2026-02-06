@@ -15,7 +15,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug });
+  const product = await sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }, ["products"]);
   if (!product) return { title: "Товар не найден — BLISS brand" };
   return {
     title: `${product.name} — BLISS brand`,
@@ -24,15 +24,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const products = await sanityFetch<Product[]>(PRODUCTS_QUERY);
+  const products = await sanityFetch<Product[]>(PRODUCTS_QUERY, undefined, ["products"]);
   return (products || []).map((p) => ({ slug: p.slug.current }));
 }
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const [product, settings] = await Promise.all([
-    sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY),
+    sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }, ["products"]),
+    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
   ]);
 
   if (!product) notFound();
