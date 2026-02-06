@@ -13,10 +13,10 @@ export default function Hero({ heroImage, heroTitle }: HeroProps) {
     <section className="relative h-[80vh] md:h-[90vh] overflow-hidden bg-gray-100">
       {heroImage ? (
         <Image
-          src={urlFor(heroImage).width(1920).height(1080).url()}
+          src={urlFor(heroImage).width(1920).quality(85).auto("format").url()}
           alt="BLISS brand"
           fill
-          className="object-cover"
+          className="object-cover object-top"
           sizes="100vw"
           priority
         />
