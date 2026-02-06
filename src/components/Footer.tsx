@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://t.me/bliss_brand_bot"
+                  href="https://t.me/bliss_ling"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors duration-300 inline-flex items-center gap-2"

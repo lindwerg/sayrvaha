@@ -39,7 +39,7 @@ export default async function ExchangePage() {
           <p>
             Напишите нам в{" "}
             <a
-              href="https://t.me/bliss_brand_bot"
+              href="https://t.me/bliss_ling"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"

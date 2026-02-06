@@ -93,7 +93,7 @@ export default async function ContactsPage() {
             </p>
             <p className="mt-2">
               <a
-                href="https://t.me/bliss_brand_bot"
+                href="https://t.me/bliss_ling"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"

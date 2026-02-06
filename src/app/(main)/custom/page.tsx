@@ -15,7 +15,7 @@ export default async function CustomPage() {
     sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY),
   ]);
 
-  const telegramUrl = settings?.telegramBotUrl || "https://t.me/bliss_brand_bot";
+  const telegramUrl = settings?.telegramBotUrl || "https://t.me/bliss_ling";
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">

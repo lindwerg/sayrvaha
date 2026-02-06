@@ -9,7 +9,7 @@ interface TelegramOrderButtonProps {
 export default function TelegramOrderButton({
   productName,
   selectedSize,
-  telegramBotUrl = "https://t.me/bliss_brand_bot",
+  telegramBotUrl = "https://t.me/bliss_ling",
 }: TelegramOrderButtonProps) {
   const handleOrder = () => {
     const text = selectedSize

@@ -27,7 +27,7 @@ export default defineType({
       name: "telegramBotUrl",
       title: "Telegram бот URL",
       type: "string",
-      description: "Например: https://t.me/bliss_brand_bot",
+      description: "Например: https://t.me/bliss_ling",
     }),
     defineField({
       name: "instagramUrl",
