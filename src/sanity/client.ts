@@ -7,7 +7,7 @@ export const client = createClient({
   projectId: projectId || "placeholder",
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: false,
 });
 
 export async function sanityFetch<T>(

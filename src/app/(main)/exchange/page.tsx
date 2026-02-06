@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ExchangePage() {
-  const page = await sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "exchange" });
+  const page = await sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "exchange" }, ["pages"]);
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">

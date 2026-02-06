@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export default async function CustomPage() {
   const [page, settings] = await Promise.all([
-    sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "custom" }),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY),
+    sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "custom" }, ["pages"]),
+    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
   ]);
 
   const telegramUrl = settings?.telegramBotUrl || "https://t.me/bliss_ling";
