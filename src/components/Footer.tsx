@@ -30,7 +30,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/exchange" className="hover:text-white transition-colors duration-300">
-                  Обмен и возврат
+                  Возврат
+                </Link>
+              </li>
+              <li>
+                <Link href="/delivery" className="hover:text-white transition-colors duration-300">
+                  Доставка
                 </Link>
               </li>
               <li>

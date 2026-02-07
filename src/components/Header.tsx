@@ -8,7 +8,8 @@ const navLinks = [
   { href: "/", label: "Главная" },
   { href: "/catalog", label: "Каталог" },
   { href: "/custom", label: "Индивидуальный пошив" },
-  { href: "/exchange", label: "Обмен и возврат" },
+  { href: "/exchange", label: "Возврат" },
+  { href: "/delivery", label: "Доставка" },
   { href: "/contacts", label: "Контакты" },
 ];
 
