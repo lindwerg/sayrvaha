@@ -6,6 +6,7 @@ import { updateSettingsAction } from "../../actions";
 
 interface SettingsData {
   heroTitle?: string;
+  heroQuote?: string;
   telegramBotUrl?: string;
   instagramUrl?: string;
   phone?: string;
@@ -76,6 +77,20 @@ export default function SettingsForm({
             placeholder="BLISS brand"
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">Цитата на главной</label>
+          <textarea
+            name="heroQuote"
+            defaultValue={settings?.heroQuote}
+            placeholder="Мы создаём одежду для женщин, которые ценят качество, комфорт и элегантность в каждой детали"
+            rows={3}
+            className={inputClass}
+          />
+          <p className="text-xs text-muted mt-1">
+            Текст отображается под баннером в кавычках &laquo;&raquo;
+          </p>
         </div>
 
         <div>

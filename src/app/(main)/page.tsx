@@ -16,16 +16,17 @@ export default async function HomePage() {
       <Hero heroImage={settings?.heroImage} heroTitle={settings?.heroTitle} />
 
       {/* Brand philosophy section */}
-      <ScrollReveal>
-        <section className="bg-cream py-20 md:py-28">
-          <div className="max-w-3xl mx-auto px-4 text-center">
-            <p className="text-lg md:text-xl font-serif text-foreground/80 leading-relaxed italic">
-              &laquo;Мы создаём одежду для женщин, которые ценят качество,
-              комфорт и элегантность в каждой детали&raquo;
-            </p>
-          </div>
-        </section>
-      </ScrollReveal>
+      {settings?.heroQuote && (
+        <ScrollReveal>
+          <section className="bg-cream py-20 md:py-28">
+            <div className="max-w-3xl mx-auto px-4 text-center">
+              <p className="text-lg md:text-xl font-serif text-foreground/80 leading-relaxed italic">
+                &laquo;{settings.heroQuote}&raquo;
+              </p>
+            </div>
+          </section>
+        </ScrollReveal>
+      )}
 
       {/* Catalog section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">

@@ -5,7 +5,7 @@ import SettingsForm from "./SettingsForm";
 export const dynamic = "force-dynamic";
 
 const SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
-  heroTitle, telegramBotUrl, instagramUrl, phone, email, address,
+  heroTitle, heroQuote, telegramBotUrl, instagramUrl, phone, email, address,
   heroImage { asset-> { _id, url } }
 }`;
 

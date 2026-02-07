@@ -174,6 +174,7 @@ export async function updateSettingsAction(formData: FormData) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
 
   const heroTitle = (formData.get("heroTitle") as string) || "";
+  const heroQuote = (formData.get("heroQuote") as string) || "";
   const telegramBotUrl = (formData.get("telegramBotUrl") as string) || "";
   const instagramUrl = (formData.get("instagramUrl") as string) || "";
   const phone = (formData.get("phone") as string) || "";
@@ -202,6 +203,7 @@ export async function updateSettingsAction(formData: FormData) {
 
   const data: Record<string, unknown> = {
     heroTitle,
+    heroQuote,
     telegramBotUrl,
     instagramUrl,
     phone,

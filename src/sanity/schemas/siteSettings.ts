@@ -24,6 +24,14 @@ export default defineType({
       description: "Текст поверх главного баннера. Например: BLISS brand",
     }),
     defineField({
+      name: "heroQuote",
+      title: "Цитата на главной",
+      type: "text",
+      rows: 3,
+      description:
+        "Текст цитаты под hero-баннером. Например: «Мы создаём одежду для женщин...»",
+    }),
+    defineField({
       name: "telegramBotUrl",
       title: "Telegram бот URL",
       type: "string",

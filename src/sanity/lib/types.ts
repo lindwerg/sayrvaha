@@ -25,6 +25,7 @@ export interface SiteSettings {
   logo?: SanityImageSource;
   heroImage?: SanityImageSource;
   heroTitle?: string;
+  heroQuote?: string;
   telegramBotUrl?: string;
   instagramUrl?: string;
   phone?: string;
