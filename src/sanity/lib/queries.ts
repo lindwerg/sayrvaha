@@ -79,6 +79,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(
     logo,
     heroImage,
     heroTitle,
+    heroSubtitle,
     heroQuote,
     telegramBotUrl,
     instagramUrl,

@@ -6,6 +6,7 @@ import { updateSettingsAction } from "../../actions";
 
 interface SettingsData {
   heroTitle?: string;
+  heroSubtitle?: string;
   heroQuote?: string;
   telegramBotUrl?: string;
   instagramUrl?: string;
@@ -77,6 +78,19 @@ export default function SettingsForm({
             placeholder="BLISS brand"
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">Подзаголовок</label>
+          <input
+            name="heroSubtitle"
+            defaultValue={settings?.heroSubtitle}
+            placeholder="Wear what makes you feel truly you."
+            className={inputClass}
+          />
+          <p className="text-xs text-muted mt-1">
+            Текст под заголовком на баннере (курсивом)
+          </p>
         </div>
 
         <div>

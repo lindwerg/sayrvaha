@@ -6,9 +6,10 @@ import type { SanityImageSource } from "@sanity/image-url";
 interface HeroProps {
   heroImage?: SanityImageSource;
   heroTitle?: string;
+  heroSubtitle?: string;
 }
 
-export default function Hero({ heroImage, heroTitle }: HeroProps) {
+export default function Hero({ heroImage, heroTitle, heroSubtitle }: HeroProps) {
   return (
     <section className="relative h-[80vh] md:h-[90vh] overflow-hidden bg-gray-100">
       {heroImage ? (
@@ -39,7 +40,7 @@ export default function Hero({ heroImage, heroTitle }: HeroProps) {
           className="text-base sm:text-lg md:text-xl mb-10 tracking-widest font-light italic opacity-90 animate-fade-in-up"
           style={{ animationDelay: "0.6s" }}
         >
-          Wear what makes you feel truly you.
+          {heroSubtitle || "Wear what makes you feel truly you."}
         </p>
 
         <Link

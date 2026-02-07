@@ -13,7 +13,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero heroImage={settings?.heroImage} heroTitle={settings?.heroTitle} />
+      <Hero heroImage={settings?.heroImage} heroTitle={settings?.heroTitle} heroSubtitle={settings?.heroSubtitle} />
 
       {/* Brand philosophy section */}
       {settings?.heroQuote && (

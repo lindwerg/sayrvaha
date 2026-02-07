@@ -24,6 +24,12 @@ export default defineType({
       description: "Текст поверх главного баннера. Например: BLISS brand",
     }),
     defineField({
+      name: "heroSubtitle",
+      title: "Подзаголовок Hero",
+      type: "string",
+      description: "Текст под заголовком баннера. Например: Wear what makes you feel truly you.",
+    }),
+    defineField({
       name: "heroQuote",
       title: "Цитата на главной",
       type: "text",
