@@ -4,11 +4,12 @@ import { writeClient } from "@/lib/sanity-admin";
 import { urlFor } from "@/sanity/image";
 import type { Product } from "@/sanity/lib/types";
 import DeleteButton from "./DeleteButton";
+import MoveButtons from "./MoveButtons";
 
 export const dynamic = "force-dynamic";
 
 const ALL_PRODUCTS = `*[_type == "product"] | order(order asc, _createdAt desc) {
-  _id, name, price, images, sizes, isNew, isOnSale, oldPrice, isAvailable, category
+  _id, name, price, images, sizes, isNew, isOnSale, oldPrice, isAvailable, category, order
 }`;
 
 export default async function AdminProductsPage() {
@@ -38,11 +39,16 @@ export default async function AdminProductsPage() {
         </div>
       ) : (
         <div className="bg-white shadow-sm">
-          {products.map((product) => (
+          {products.map((product, index) => (
             <div
               key={product._id}
               className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-warm-gray/50 transition-colors"
             >
+              <MoveButtons
+                id={product._id}
+                isFirst={index === 0}
+                isLast={index === products.length - 1}
+              />
               {product.images?.[0] ? (
                 <Image
                   src={urlFor(product.images[0]).width(120).height(120).url()}

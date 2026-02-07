@@ -118,29 +118,18 @@ export default function ProductForm({ product }: { product?: ProductData }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1.5">Цена (₽) *</label>
-          <input
-            name="price"
-            type="number"
-            min="0"
-            defaultValue={product?.price}
-            required
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1.5">Сортировка</label>
-          <input
-            name="order"
-            type="number"
-            defaultValue={product?.order || 0}
-            className={inputClass}
-          />
-          <p className="text-xs text-muted mt-1">Меньше = выше в каталоге</p>
-        </div>
+      <div>
+        <label className="block text-sm font-medium mb-1.5">Цена (₽) *</label>
+        <input
+          name="price"
+          type="number"
+          min="0"
+          defaultValue={product?.price}
+          required
+          className={inputClass}
+        />
       </div>
+      <input type="hidden" name="order" value={product?.order || 0} />
 
       <div>
         <label className="block text-sm font-medium mb-1.5">Категория</label>

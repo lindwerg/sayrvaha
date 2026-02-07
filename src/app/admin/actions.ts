@@ -178,6 +178,39 @@ export async function deleteProductAction(formData: FormData) {
   return { success: true };
 }
 
+export async function moveProductAction(id: string, direction: "up" | "down") {
+  if (!(await isAuthenticated())) return { error: "Не авторизован" };
+
+  const products = await writeClient.fetch<{ _id: string; order: number }[]>(
+    `*[_type == "product"] | order(order asc, _createdAt desc) { _id, order }`
+  );
+
+  const idx = products.findIndex((p) => p._id === id);
+  if (idx === -1) return { error: "Товар не найден" };
+
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= products.length) return { error: "Некуда двигать" };
+
+  const current = products[idx];
+  const neighbor = products[swapIdx];
+
+  // Swap order values; if equal, offset by 1
+  let currentOrder = current.order ?? 0;
+  let neighborOrder = neighbor.order ?? 0;
+  if (currentOrder === neighborOrder) {
+    neighborOrder = direction === "up" ? currentOrder - 1 : currentOrder + 1;
+  }
+
+  await writeClient.patch(current._id).set({ order: neighborOrder }).commit();
+  await writeClient.patch(neighbor._id).set({ order: currentOrder }).commit();
+
+  revalidateTag("products", "default");
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+  revalidatePath("/");
+  return { success: true };
+}
+
 // ─── Settings ───
 
 export async function updateSettingsAction(formData: FormData) {

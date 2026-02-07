@@ -9,13 +9,12 @@ interface TelegramOrderButtonProps {
 export default function TelegramOrderButton({
   productName,
   selectedSize,
-  telegramBotUrl = "https://t.me/bliss_ling",
 }: TelegramOrderButtonProps) {
   const handleOrder = () => {
     const text = selectedSize
       ? `Хочу заказать: ${productName}, размер: ${selectedSize}`
       : `Хочу заказать: ${productName}`;
-    const url = `${telegramBotUrl}?text=${encodeURIComponent(text)}`;
+    const url = `https://t.me/bliss_ling?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   };
 
