@@ -24,8 +24,8 @@ export default function Hero({ heroImage, heroTitle }: HeroProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-cream to-primary/5" />
       )}
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/10" />
+      {/* Gradient overlay — soft vignette for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/15 to-black/5" />
 
       <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
         <h1
@@ -51,8 +51,6 @@ export default function Hero({ heroImage, heroTitle }: HeroProps) {
         </Link>
       </div>
 
-      {/* Bottom decorative fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-cream to-transparent" />
     </section>
   );
 }
