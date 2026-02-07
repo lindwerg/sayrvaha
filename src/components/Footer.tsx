@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-foreground text-white mt-auto">
+    <footer className="bg-primary-dark text-white mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           {/* Brand */}
@@ -31,6 +31,11 @@ export default function Footer() {
               <li>
                 <Link href="/delivery" className="hover:text-white transition-colors duration-300">
                   Доставка
+                </Link>
+              </li>
+              <li>
+                <Link href="/sale" className="hover:text-white transition-colors duration-300">
+                  Sale
                 </Link>
               </li>
               <li>
@@ -77,7 +82,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-700/50 text-center text-xs text-gray-500 tracking-wide">
+        <div className="mt-10 pt-6 border-t border-white/15 text-center text-xs text-gray-500 tracking-wide">
           &copy; {new Date().getFullYear()} BLISS brand. Все права защищены.
         </div>
       </div>

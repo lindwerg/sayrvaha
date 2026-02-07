@@ -49,7 +49,7 @@ export default async function ContactsPage() {
               rel="noopener noreferrer"
               className="text-lg hover:text-primary transition-colors"
             >
-              Написать в Telegram
+              Наша страница в Telegram
             </a>
           </div>
         )}
@@ -98,7 +98,7 @@ export default async function ContactsPage() {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                Написать в Telegram
+                Наша страница в Telegram
               </a>
             </p>
           </div>

@@ -20,6 +20,8 @@ interface ProductData {
   category?: string;
   sizes?: string[];
   isNew?: boolean;
+  isOnSale?: boolean;
+  oldPrice?: number;
   isAvailable?: boolean;
   order?: number;
   images?: ProductImage[];
@@ -34,6 +36,8 @@ const CATEGORIES = [
   { value: "suits", label: "Костюмы" },
   { value: "outerwear", label: "Верхняя одежда" },
   { value: "accessories", label: "Аксессуары" },
+  { value: "lingerie", label: "Нижнее белье" },
+  { value: "homewear", label: "Одежда для дома" },
 ];
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
@@ -49,6 +53,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
   );
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [showOldPrice, setShowOldPrice] = useState(product?.isOnSale ?? false);
 
   const removeExisting = (key: string) => {
     setKeptImages((imgs) => imgs.filter((img) => img._key !== key));
@@ -98,7 +103,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
     "w-full border border-border px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors bg-white";
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form key={product?._id || 'new'} ref={formRef} onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {error && (
         <div className="bg-red-50 text-red-600 px-4 py-3 text-sm">{error}</div>
       )}
@@ -199,7 +204,31 @@ export default function ProductForm({ product }: { product?: ProductData }) {
           />
           Новинка
         </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="isOnSale"
+            defaultChecked={product?.isOnSale}
+            className="accent-primary"
+            onChange={(e) => setShowOldPrice(e.target.checked)}
+          />
+          Акция (Sale)
+        </label>
       </div>
+
+      {showOldPrice && (
+        <div>
+          <label className="block text-sm font-medium mb-1.5">Старая цена (₽)</label>
+          <input
+            name="oldPrice"
+            type="number"
+            min="0"
+            defaultValue={product?.oldPrice}
+            className={inputClass}
+          />
+          <p className="text-xs text-muted mt-1">Цена до скидки. Текущая цена станет ценой со скидкой</p>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1.5">Фото *</label>
@@ -217,7 +246,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
               <button
                 type="button"
                 onClick={() => removeExisting(img._key)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
               >
                 ×
               </button>
@@ -234,7 +263,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
               <button
                 type="button"
                 onClick={() => removeNew(i)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
               >
                 ×
               </button>

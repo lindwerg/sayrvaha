@@ -11,6 +11,8 @@ export interface Product {
   description?: string;
   category?: string;
   isNew?: boolean;
+  isOnSale?: boolean;
+  oldPrice?: number;
   isAvailable?: boolean;
 }
 

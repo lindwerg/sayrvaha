@@ -88,6 +88,8 @@ export async function createProductAction(formData: FormData) {
   const category = (formData.get("category") as string) || "";
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
+  const isOnSale = formData.get("isOnSale") === "on";
+  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
   const isAvailable = formData.get("isAvailable") === "on";
   const order = Number(formData.get("order")) || 0;
 
@@ -103,6 +105,8 @@ export async function createProductAction(formData: FormData) {
     category: category || undefined,
     sizes,
     isNew,
+    isOnSale,
+    oldPrice: isOnSale ? oldPrice : undefined,
     isAvailable,
     order,
     images: newImageRefs,
@@ -111,6 +115,7 @@ export async function createProductAction(formData: FormData) {
   revalidateTag("products", "default");
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
+  revalidatePath("/sale");
   revalidatePath("/");
   return { success: true };
 }
@@ -124,6 +129,8 @@ export async function updateProductAction(id: string, formData: FormData) {
   const category = (formData.get("category") as string) || "";
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
+  const isOnSale = formData.get("isOnSale") === "on";
+  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
   const isAvailable = formData.get("isAvailable") === "on";
   const order = Number(formData.get("order")) || 0;
 
@@ -143,6 +150,8 @@ export async function updateProductAction(id: string, formData: FormData) {
       category: category || undefined,
       sizes,
       isNew,
+      isOnSale,
+      oldPrice: isOnSale ? oldPrice : undefined,
       isAvailable,
       order,
       images: allImages,
@@ -152,6 +161,7 @@ export async function updateProductAction(id: string, formData: FormData) {
   revalidateTag("products", "default");
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
+  revalidatePath("/sale");
   revalidatePath("/");
   revalidatePath(`/catalog/${slugify(name)}`);
   return { success: true };

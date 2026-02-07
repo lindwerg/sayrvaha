@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/catalog", label: "Каталог" },
   { href: "/exchange", label: "Возврат" },
   { href: "/delivery", label: "Доставка" },
+  { href: "/sale", label: "Sale" },
   { href: "/contacts", label: "Контакты" },
 ];
 

@@ -41,13 +41,27 @@ export default function ProductCard({ product }: { product: Product }) {
             New
           </span>
         )}
+
+        {/* Sale badge */}
+        {product.isOnSale && (
+          <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] px-3 py-1.5 uppercase tracking-[0.15em] font-medium">
+            Sale
+          </span>
+        )}
       </div>
 
       <h3 className="text-sm font-medium mb-1 group-hover:text-primary transition-colors duration-300">
         {product.name}
       </h3>
       <p className="text-sm text-muted tracking-wide">
-        {product.price.toLocaleString("ru-RU")} ₽
+        {product.isOnSale && product.oldPrice ? (
+          <>
+            <span className="line-through text-muted text-xs">{product.oldPrice.toLocaleString("ru-RU")} ₽</span>{" "}
+            <span className="text-red-600">{product.price.toLocaleString("ru-RU")} ₽</span>
+          </>
+        ) : (
+          <>{product.price.toLocaleString("ru-RU")} ₽</>
+        )}
       </p>
     </Link>
   );

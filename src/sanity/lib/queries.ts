@@ -10,6 +10,8 @@ export const PRODUCTS_QUERY = defineQuery(
     sizes,
     category,
     isNew,
+    isOnSale,
+    oldPrice,
     isAvailable
   }`
 );
@@ -25,6 +27,8 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(
     description,
     category,
     isNew,
+    isOnSale,
+    oldPrice,
     isAvailable
   }`
 );
@@ -39,6 +43,24 @@ export const PRODUCTS_BY_CATEGORY_QUERY = defineQuery(
     sizes,
     category,
     isNew,
+    isOnSale,
+    oldPrice,
+    isAvailable
+  }`
+);
+
+export const SALE_PRODUCTS_QUERY = defineQuery(
+  `*[_type == "product" && isAvailable == true && isOnSale == true] | order(order asc, _createdAt desc) {
+    _id,
+    name,
+    slug,
+    price,
+    images,
+    sizes,
+    category,
+    isNew,
+    isOnSale,
+    oldPrice,
     isAvailable
   }`
 );

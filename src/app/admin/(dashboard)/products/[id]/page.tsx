@@ -5,7 +5,7 @@ import ProductForm from "../ProductForm";
 export const dynamic = "force-dynamic";
 
 const PRODUCT_QUERY = `*[_type == "product" && _id == $id][0] {
-  _id, name, price, description, category, sizes, isNew, isAvailable, order,
+  _id, name, price, description, category, sizes, isNew, isOnSale, oldPrice, isAvailable, order,
   images[] { _type, _key, asset }
 }`;
 

@@ -68,6 +68,8 @@ export default defineType({
           { title: "Костюмы", value: "suits" },
           { title: "Верхняя одежда", value: "outerwear" },
           { title: "Аксессуары", value: "accessories" },
+          { title: "Нижнее белье", value: "lingerie" },
+          { title: "Одежда для дома", value: "homewear" },
         ],
       },
     }),
@@ -77,6 +79,20 @@ export default defineType({
       type: "boolean",
       description: "Показывает бейдж «New» на карточке товара",
       initialValue: false,
+    }),
+    defineField({
+      name: "isOnSale",
+      title: "Акция",
+      type: "boolean",
+      description: 'Показывает бейдж «Sale» и перечёркнутую цену',
+      initialValue: false,
+    }),
+    defineField({
+      name: "oldPrice",
+      title: "Старая цена (₽)",
+      type: "number",
+      description: "Цена до скидки. Текущая цена станет ценой со скидкой",
+      hidden: ({ parent }) => !parent?.isOnSale,
     }),
     defineField({
       name: "isAvailable",
@@ -98,10 +114,11 @@ export default defineType({
       title: "name",
       subtitle: "price",
       media: "images.0",
+      isOnSale: "isOnSale",
     },
-    prepare({ title, subtitle, media }) {
+    prepare({ title, subtitle, media, isOnSale }) {
       return {
-        title,
+        title: isOnSale ? `🏷 ${title}` : title,
         subtitle: subtitle ? `${subtitle} ₽` : "",
         media,
       };

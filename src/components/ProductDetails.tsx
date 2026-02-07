@@ -16,9 +16,16 @@ export default function ProductDetails({
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-serif mb-2">{product.name}</h1>
-          <p className="text-xl text-primary font-medium">
-            {product.price.toLocaleString("ru-RU")} ₽
-          </p>
+          {product.isOnSale && product.oldPrice ? (
+            <p className="text-xl font-medium">
+              <span className="line-through text-muted text-base mr-2">{product.oldPrice.toLocaleString("ru-RU")} ₽</span>
+              <span className="text-red-600">{product.price.toLocaleString("ru-RU")} ₽</span>
+            </p>
+          ) : (
+            <p className="text-xl text-primary font-medium">
+              {product.price.toLocaleString("ru-RU")} ₽
+            </p>
+          )}
         </div>
 
         <TelegramOrderButton

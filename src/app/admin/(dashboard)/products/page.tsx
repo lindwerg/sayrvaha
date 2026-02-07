@@ -8,7 +8,7 @@ import DeleteButton from "./DeleteButton";
 export const dynamic = "force-dynamic";
 
 const ALL_PRODUCTS = `*[_type == "product"] | order(order asc, _createdAt desc) {
-  _id, name, price, images, sizes, isNew, isAvailable, category
+  _id, name, price, images, sizes, isNew, isOnSale, oldPrice, isAvailable, category
 }`;
 
 export default async function AdminProductsPage() {
@@ -69,6 +69,11 @@ export default async function AdminProductsPage() {
                 {product.isNew && (
                   <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded">
                     New
+                  </span>
+                )}
+                {product.isOnSale && (
+                  <span className="text-[10px] px-2 py-0.5 bg-red-50 text-red-600 rounded">
+                    Sale
                   </span>
                 )}
                 <span
