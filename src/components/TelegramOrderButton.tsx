@@ -22,10 +22,9 @@ export default function TelegramOrderButton({
   return (
     <button
       onClick={handleOrder}
-      disabled={!selectedSize}
-      className="w-full py-4 bg-primary text-white font-medium uppercase tracking-wider hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full py-4 bg-primary text-white font-medium uppercase tracking-wider hover:bg-primary-dark transition-colors"
     >
-      {selectedSize ? "Заказать в Telegram" : "Выберите размер"}
+      Заказать в Telegram
     </button>
   );
 }

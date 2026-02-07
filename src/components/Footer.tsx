@@ -24,11 +24,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/custom" className="hover:text-white transition-colors duration-300">
-                  Индивидуальный пошив
-                </Link>
-              </li>
-              <li>
                 <Link href="/exchange" className="hover:text-white transition-colors duration-300">
                   Возврат
                 </Link>
@@ -67,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://t.me/bliss_ling"
+                  href="https://t.me/bliss_catalogue"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors duration-300 inline-flex items-center gap-2"

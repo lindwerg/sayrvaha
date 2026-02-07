@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
 import ProductGallery from "./ProductGallery";
-import SizeSelector from "./SizeSelector";
 import TelegramOrderButton from "./TelegramOrderButton";
 import type { Product } from "@/sanity/lib/types";
 
@@ -13,8 +9,6 @@ export default function ProductDetails({
   product: Product;
   telegramBotUrl?: string;
 }) {
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
       <ProductGallery images={product.images} />
@@ -27,15 +21,9 @@ export default function ProductDetails({
           </p>
         </div>
 
-        <SizeSelector
-          sizes={product.sizes}
-          selected={selectedSize}
-          onSelect={setSelectedSize}
-        />
-
         <TelegramOrderButton
           productName={product.name}
-          selectedSize={selectedSize}
+          selectedSize={null}
           telegramBotUrl={telegramBotUrl}
         />
 
