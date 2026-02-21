@@ -5,7 +5,7 @@ import type { Product } from "@/sanity/lib/types";
 
 export default function ProductCard({ product }: { product: Product }) {
   const imageUrl = product.images?.[0]
-    ? urlFor(product.images[0]).width(600).height(800).url()
+    ? urlFor(product.images[0]).width(800).height(1067).quality(85).auto("format").url()
     : null;
 
   return (

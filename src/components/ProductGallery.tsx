@@ -38,7 +38,7 @@ export default function ProductGallery({ images }: { images: SanityImageSource[]
           <SwiperSlide key={index}>
             <div className="relative w-full h-full">
               <Image
-                src={urlFor(image).width(800).height(1067).url()}
+                src={urlFor(image).width(1600).height(2133).quality(90).auto("format").url()}
                 alt={`Фото ${index + 1}`}
                 fill
                 className="object-cover"
