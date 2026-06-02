@@ -16,6 +16,9 @@ RUN npm ci
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# На время сборки указываем БД на зашитый seed-data (19 товаров),
+# чтобы Next.js мог пререндерить страницы каталога. В рантайме база берётся с тома.
+ENV DATABASE_URL=file:/app/seed-data/app.db
 RUN npx prisma generate && npx next build
 
 # ── Рантайм ──
