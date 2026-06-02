@@ -35,8 +35,8 @@ COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/seed-data ./seed-data
 COPY --from=build /app/package.json ./package.json
 
-# Том для базы и загруженных картинок (переживает передеплои).
-VOLUME ["/data"]
+# Постоянные данные (база + /uploads) монтируются на /data через Railway Volume
+# (или -v на VPS). Инструкция VOLUME не используется — Railway её не поддерживает.
 EXPOSE 3000
 
 # При старте: применяем миграции к базе на томе, наполняем дефолтами, запускаем сервер.
