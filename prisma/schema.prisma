@@ -1,0 +1,53 @@
+// Локальная база данных проекта — всё хранится в одном файле SQLite.
+// Путь к файлу задаётся через DATABASE_URL (по умолчанию ./prisma/dev.db,
+// на сервере указывает на постоянный диск, напр. file:/data/app.db).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  price       Float
+  description String?
+  category    String?
+  sizes       String   @default("[]") // JSON-массив строк: ["S","M","L"]
+  images      String   @default("[]") // JSON-массив путей: ["/uploads/ab.jpg"]
+  isNew       Boolean  @default(false)
+  isOnSale    Boolean  @default(false)
+  oldPrice    Float?
+  isAvailable Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([isAvailable, order])
+  @@index([category])
+}
+
+model Page {
+  id      String @id @default(cuid())
+  slug    String @unique
+  title   String
+  content String @default("") // HTML-содержимое страницы
+}
+
+model SiteSettings {
+  id             String  @id @default("singleton")
+  logo           String?
+  heroImage      String?
+  heroTitle      String?
+  heroSubtitle   String?
+  heroQuote      String?
+  telegramBotUrl String?
+  instagramUrl   String?
+  phone          String?
+  email          String?
+  address        String?
+}
