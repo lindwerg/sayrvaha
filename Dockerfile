@@ -29,6 +29,8 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/scripts ./scripts
+COPY --from=build /app/seed-data ./seed-data
 COPY --from=build /app/package.json ./package.json
 
 # Том для базы и загруженных картинок (переживает передеплои).
