@@ -1,5 +1,5 @@
 import ProductCard from "./ProductCard";
-import type { Product } from "@/sanity/lib/types";
+import type { Product } from "@/lib/types";
 
 export default function ProductGrid({ products }: { products: Product[] }) {
   if (!products || products.length === 0) {

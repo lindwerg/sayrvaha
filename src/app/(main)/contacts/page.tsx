@@ -1,6 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import { SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
-import type { SiteSettings } from "@/sanity/lib/types";
+import { getSiteSettings } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactsPage() {
-  const settings = await sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]);
+  const settings = await getSiteSettings();
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">

@@ -1,10 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import {
-  PRODUCT_BY_SLUG_QUERY,
-  PRODUCTS_QUERY,
-  SITE_SETTINGS_QUERY,
-} from "@/sanity/lib/queries";
-import type { Product, SiteSettings } from "@/sanity/lib/types";
+import { getProductBySlug, getProducts, getSiteSettings } from "@/lib/data";
 import ProductDetails from "@/components/ProductDetails";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -15,7 +9,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }, ["products"]);
+  const product = await getProductBySlug(slug);
   if (!product) return { title: "Товар не найден — BLISS brand" };
   return {
     title: `${product.name} — BLISS brand`,
@@ -24,15 +18,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const products = await sanityFetch<Product[]>(PRODUCTS_QUERY, undefined, ["products"]);
+  const products = await getProducts();
   return (products || []).map((p) => ({ slug: p.slug.current }));
 }
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const [product, settings] = await Promise.all([
-    sanityFetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }, ["products"]),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
+    getProductBySlug(slug),
+    getSiteSettings(),
   ]);
 
   if (!product) notFound();

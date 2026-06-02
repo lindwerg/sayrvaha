@@ -4,20 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "build": "prisma generate && next build",
+    "start": "prisma migrate deploy && node prisma/seed.mjs && next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.mjs",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@next/third-parties": "^16.1.6",
-    "@portabletext/react": "^6.0.2",
-    "@sanity/image-url": "^2.0.3",
-    "@sanity/vision": "^5.8.1",
+    "@prisma/client": "^6.19.3",
     "next": "16.1.6",
-    "next-sanity": "^12.1.0",
+    "prisma": "^6.19.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "sanity": "^5.8.1",
     "swiper": "^12.1.0"
   },
   "devDependencies": {

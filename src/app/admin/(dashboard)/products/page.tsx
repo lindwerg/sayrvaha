@@ -1,19 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { writeClient } from "@/lib/sanity-admin";
-import { urlFor } from "@/sanity/image";
-import type { Product } from "@/sanity/lib/types";
+import { getAllProducts } from "@/lib/data";
+import { urlFor } from "@/lib/image";
 import DeleteButton from "./DeleteButton";
 import MoveButtons from "./MoveButtons";
 
 export const dynamic = "force-dynamic";
 
-const ALL_PRODUCTS = `*[_type == "product"] | order(order asc, _createdAt desc) {
-  _id, name, price, images, sizes, isNew, isOnSale, oldPrice, isAvailable, category, order
-}`;
-
 export default async function AdminProductsPage() {
-  const products = await writeClient.fetch<Product[]>(ALL_PRODUCTS);
+  const products = await getAllProducts();
 
   return (
     <div>

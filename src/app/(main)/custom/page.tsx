@@ -1,7 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import { PAGE_BY_SLUG_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
-import type { Page, SiteSettings } from "@/sanity/lib/types";
-import { PortableText } from "@portabletext/react";
+import { getPage, getSiteSettings } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,8 +8,8 @@ export const metadata: Metadata = {
 
 export default async function CustomPage() {
   const [page, settings] = await Promise.all([
-    sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "custom" }, ["pages"]),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
+    getPage("custom"),
+    getSiteSettings(),
   ]);
 
   const telegramUrl = settings?.telegramBotUrl || "https://t.me/bliss_ling";
@@ -25,7 +22,7 @@ export default async function CustomPage() {
 
       {page?.content ? (
         <div className="prose prose-lg max-w-none [&_h2]:font-serif [&_h2]:text-xl [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:font-serif [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:text-muted [&_p]:leading-relaxed">
-          <PortableText value={page.content} />
+          <div dangerouslySetInnerHTML={{ __html: page.content }} />
         </div>
       ) : (
         <div className="text-muted space-y-6 leading-relaxed">

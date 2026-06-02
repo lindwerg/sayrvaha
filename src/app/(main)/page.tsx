@@ -1,14 +1,13 @@
-import { sanityFetch } from "@/sanity/client";
-import { PRODUCTS_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
-import type { Product, SiteSettings } from "@/sanity/lib/types";
+import { getProducts, getSiteSettings } from "@/lib/data";
+import type { Product, SiteSettings } from "@/lib/types";
 import Hero from "@/components/Hero";
 import ProductGrid from "@/components/ProductGrid";
 import ScrollReveal from "@/components/ScrollReveal";
 
 export default async function HomePage() {
-  const [products, settings] = await Promise.all([
-    sanityFetch<Product[]>(PRODUCTS_QUERY, undefined, ["products"]),
-    sanityFetch<SiteSettings>(SITE_SETTINGS_QUERY, undefined, ["settings"]),
+  const [products, settings]: [Product[], SiteSettings | null] = await Promise.all([
+    getProducts(),
+    getSiteSettings(),
   ]);
 
   return (

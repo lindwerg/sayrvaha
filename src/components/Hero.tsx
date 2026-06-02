@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { urlFor } from "@/sanity/image";
-import type { SanityImageSource } from "@sanity/image-url";
+import { urlFor } from "@/lib/image";
 
 interface HeroProps {
-  heroImage?: SanityImageSource;
+  heroImage?: string;
   heroTitle?: string;
   heroSubtitle?: string;
 }

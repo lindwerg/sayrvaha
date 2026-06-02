@@ -1,14 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   verifyPassword,
   setSessionCookie,
   clearSessionCookie,
   isAuthenticated,
 } from "@/lib/auth";
-import { writeClient } from "@/lib/sanity-admin";
+import { prisma } from "@/lib/db";
+import { saveUpload } from "@/lib/uploads";
 
 // ─── Auth ───
 
@@ -29,7 +30,7 @@ export async function logoutAction() {
   redirect("/admin/login");
 }
 
-// ─── Products ───
+// ─── Helpers ───
 
 const translitMap: Record<string, string> = {
   а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo",
@@ -51,33 +52,40 @@ function slugify(text: string): string {
     .trim();
 }
 
-async function uploadImages(formData: FormData) {
+// Гарантирует уникальность slug (в базе он уникален).
+async function uniqueSlug(base: string, ignoreId?: string): Promise<string> {
+  const root = base || "tovar";
+  let candidate = root;
+  let n = 1;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const existing = await prisma.product.findUnique({ where: { slug: candidate } });
+    if (!existing || existing.id === ignoreId) return candidate;
+    candidate = `${root}-${++n}`;
+  }
+}
+
+// Сохраняет новые файлы из поля newImages и возвращает массив путей.
+async function uploadImages(formData: FormData): Promise<string[]> {
   const files = formData
     .getAll("newImages")
     .filter((v): v is File => v instanceof File && v.size > 0);
-
-  const refs = await Promise.all(
-    files.map(async (file) => {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const asset = await writeClient.assets.upload("image", buffer, {
-        filename: file.name,
-        contentType: file.type,
-      });
-      return {
-        _type: "image" as const,
-        _key: asset._id.slice(-8),
-        asset: { _type: "reference" as const, _ref: asset._id },
-      };
-    }),
-  );
-  return refs;
+  return Promise.all(files.map((file) => saveUpload(file)));
 }
 
-function parseExistingImages(formData: FormData) {
-  return formData
-    .getAll("existingImages")
-    .map((v) => JSON.parse(v as string));
+// Уже прикреплённые картинки приходят строками-путями в поле existingImages.
+function parseExistingImages(formData: FormData): string[] {
+  return formData.getAll("existingImages").map((v) => String(v));
 }
+
+function revalidateProductPages() {
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+  revalidatePath("/sale");
+  revalidatePath("/");
+}
+
+// ─── Products ───
 
 export async function createProductAction(formData: FormData) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
@@ -89,34 +97,31 @@ export async function createProductAction(formData: FormData) {
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
   const isOnSale = formData.get("isOnSale") === "on";
-  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
+  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : null;
   const isAvailable = formData.get("isAvailable") === "on";
   const order = Number(formData.get("order")) || 0;
 
-  const newImageRefs = await uploadImages(formData);
-  if (newImageRefs.length === 0) return { error: "Добавьте хотя бы одно фото" };
+  const images = await uploadImages(formData);
+  if (images.length === 0) return { error: "Добавьте хотя бы одно фото" };
 
-  await writeClient.create({
-    _type: "product",
-    name,
-    slug: { _type: "slug", current: slugify(name) },
-    price,
-    description,
-    category: category || undefined,
-    sizes,
-    isNew,
-    isOnSale,
-    oldPrice: isOnSale ? oldPrice : undefined,
-    isAvailable,
-    order,
-    images: newImageRefs,
+  await prisma.product.create({
+    data: {
+      name,
+      slug: await uniqueSlug(slugify(name)),
+      price,
+      description,
+      category: category || null,
+      sizes: JSON.stringify(sizes),
+      images: JSON.stringify(images),
+      isNew,
+      isOnSale,
+      oldPrice: isOnSale ? oldPrice : null,
+      isAvailable,
+      order,
+    },
   });
 
-  revalidateTag("products", "default");
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
-  revalidatePath("/sale");
-  revalidatePath("/");
+  revalidateProductPages();
   return { success: true };
 }
 
@@ -130,62 +135,57 @@ export async function updateProductAction(id: string, formData: FormData) {
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
   const isOnSale = formData.get("isOnSale") === "on";
-  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
+  const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : null;
   const isAvailable = formData.get("isAvailable") === "on";
   const order = Number(formData.get("order")) || 0;
 
   const existing = parseExistingImages(formData);
-  const newRefs = await uploadImages(formData);
-  const allImages = [...existing, ...newRefs];
+  const uploaded = await uploadImages(formData);
+  const images = [...existing, ...uploaded];
+  if (images.length === 0) return { error: "Нужно хотя бы одно фото" };
 
-  if (allImages.length === 0) return { error: "Нужно хотя бы одно фото" };
+  const slug = await uniqueSlug(slugify(name), id);
 
-  await writeClient
-    .patch(id)
-    .set({
+  await prisma.product.update({
+    where: { id },
+    data: {
       name,
-      slug: { _type: "slug", current: slugify(name) },
+      slug,
       price,
       description,
-      category: category || undefined,
-      sizes,
+      category: category || null,
+      sizes: JSON.stringify(sizes),
+      images: JSON.stringify(images),
       isNew,
       isOnSale,
-      oldPrice: isOnSale ? oldPrice : undefined,
+      oldPrice: isOnSale ? oldPrice : null,
       isAvailable,
       order,
-      images: allImages,
-    })
-    .commit();
+    },
+  });
 
-  revalidateTag("products", "default");
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
-  revalidatePath("/sale");
-  revalidatePath("/");
-  revalidatePath(`/catalog/${slugify(name)}`);
+  revalidateProductPages();
+  revalidatePath(`/catalog/${slug}`);
   return { success: true };
 }
 
 export async function deleteProductAction(formData: FormData) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
   const id = formData.get("id") as string;
-  await writeClient.delete(id);
-  revalidateTag("products", "default");
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
-  revalidatePath("/");
+  await prisma.product.delete({ where: { id } });
+  revalidateProductPages();
   return { success: true };
 }
 
 export async function moveProductAction(id: string, direction: "up" | "down") {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
 
-  const products = await writeClient.fetch<{ _id: string; order: number }[]>(
-    `*[_type == "product"] | order(order asc, _createdAt desc) { _id, order }`
-  );
+  const products = await prisma.product.findMany({
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    select: { id: true, order: true },
+  });
 
-  const idx = products.findIndex((p) => p._id === id);
+  const idx = products.findIndex((p) => p.id === id);
   if (idx === -1) return { error: "Товар не найден" };
 
   const swapIdx = direction === "up" ? idx - 1 : idx + 1;
@@ -194,20 +194,16 @@ export async function moveProductAction(id: string, direction: "up" | "down") {
   const current = products[idx];
   const neighbor = products[swapIdx];
 
-  // Swap order values; if equal, offset by 1
-  let currentOrder = current.order ?? 0;
+  const currentOrder = current.order ?? 0;
   let neighborOrder = neighbor.order ?? 0;
   if (currentOrder === neighborOrder) {
     neighborOrder = direction === "up" ? currentOrder - 1 : currentOrder + 1;
   }
 
-  await writeClient.patch(current._id).set({ order: neighborOrder }).commit();
-  await writeClient.patch(neighbor._id).set({ order: currentOrder }).commit();
+  await prisma.product.update({ where: { id: current.id }, data: { order: neighborOrder } });
+  await prisma.product.update({ where: { id: neighbor.id }, data: { order: currentOrder } });
 
-  revalidateTag("products", "default");
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
-  revalidatePath("/");
+  revalidateProductPages();
   return { success: true };
 }
 
@@ -216,58 +212,26 @@ export async function moveProductAction(id: string, direction: "up" | "down") {
 export async function updateSettingsAction(formData: FormData) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
 
-  const heroTitle = (formData.get("heroTitle") as string) || "";
-  const heroSubtitle = (formData.get("heroSubtitle") as string) || "";
-  const heroQuote = (formData.get("heroQuote") as string) || "";
-  const telegramBotUrl = (formData.get("telegramBotUrl") as string) || "";
-  const instagramUrl = (formData.get("instagramUrl") as string) || "";
-  const phone = (formData.get("phone") as string) || "";
-  const email = (formData.get("email") as string) || "";
-  const address = (formData.get("address") as string) || "";
-
-  // Upload hero image if provided
-  const heroFile = formData.get("heroImage") as File;
-  let heroImageField = undefined;
-  if (heroFile && heroFile.size > 0) {
-    const buffer = Buffer.from(await heroFile.arrayBuffer());
-    const asset = await writeClient.assets.upload("image", buffer, {
-      filename: heroFile.name,
-      contentType: heroFile.type,
-    });
-    heroImageField = {
-      _type: "image",
-      asset: { _type: "reference", _ref: asset._id },
-    };
-  }
-
-  // Check if settings document exists
-  const existing = await writeClient.fetch(
-    `*[_type == "siteSettings"][0]._id`,
-  );
-
-  const data: Record<string, unknown> = {
-    heroTitle,
-    heroSubtitle,
-    heroQuote,
-    telegramBotUrl,
-    instagramUrl,
-    phone,
-    email,
-    address,
+  const data: Record<string, string> = {
+    heroTitle: (formData.get("heroTitle") as string) || "",
+    heroSubtitle: (formData.get("heroSubtitle") as string) || "",
+    heroQuote: (formData.get("heroQuote") as string) || "",
+    telegramBotUrl: (formData.get("telegramBotUrl") as string) || "",
+    instagramUrl: (formData.get("instagramUrl") as string) || "",
+    phone: (formData.get("phone") as string) || "",
+    email: (formData.get("email") as string) || "",
+    address: (formData.get("address") as string) || "",
   };
-  if (heroImageField) data.heroImage = heroImageField;
 
-  if (existing) {
-    await writeClient.patch(existing).set(data).commit();
-  } else {
-    await writeClient.create({
-      _type: "siteSettings",
-      _id: "siteSettings",
-      ...data,
-    });
-  }
+  const heroFile = formData.get("heroImage") as File | null;
+  const heroImage = heroFile && heroFile.size > 0 ? await saveUpload(heroFile) : undefined;
 
-  revalidateTag("settings", "default");
+  await prisma.siteSettings.upsert({
+    where: { id: "singleton" },
+    create: { id: "singleton", ...data, ...(heroImage ? { heroImage } : {}) },
+    update: { ...data, ...(heroImage ? { heroImage } : {}) },
+  });
+
   revalidatePath("/admin/settings");
   revalidatePath("/");
   revalidatePath("/contacts");

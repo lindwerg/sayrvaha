@@ -1,6 +1,6 @@
 import ProductGallery from "./ProductGallery";
 import TelegramOrderButton from "./TelegramOrderButton";
-import type { Product } from "@/sanity/lib/types";
+import type { Product } from "@/lib/types";
 
 export default function ProductDetails({
   product,

@@ -1,6 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import { PRODUCTS_QUERY } from "@/sanity/lib/queries";
-import type { Product } from "@/sanity/lib/types";
+import { getProducts } from "@/lib/data";
 import CategoryTabs from "@/components/CategoryTabs";
 import type { Metadata } from "next";
 
@@ -10,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const products = await sanityFetch<Product[]>(PRODUCTS_QUERY, undefined, ["products"]);
+  const products = await getProducts();
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

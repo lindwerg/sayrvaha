@@ -3,14 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { urlFor } from "@/sanity/image";
+import { urlFor } from "@/lib/image";
 import { createProductAction, updateProductAction } from "../../actions";
-
-interface ProductImage {
-  _type: string;
-  _key: string;
-  asset: { _type: string; _ref: string };
-}
 
 interface ProductData {
   _id: string;
@@ -24,7 +18,7 @@ interface ProductData {
   oldPrice?: number;
   isAvailable?: boolean;
   order?: number;
-  images?: ProductImage[];
+  images?: string[];
 }
 
 const CATEGORIES = [
@@ -48,15 +42,15 @@ export default function ProductForm({ product }: { product?: ProductData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [keptImages, setKeptImages] = useState<ProductImage[]>(
+  const [keptImages, setKeptImages] = useState<string[]>(
     product?.images || [],
   );
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [showOldPrice, setShowOldPrice] = useState(product?.isOnSale ?? false);
 
-  const removeExisting = (key: string) => {
-    setKeptImages((imgs) => imgs.filter((img) => img._key !== key));
+  const removeExisting = (path: string) => {
+    setKeptImages((imgs) => imgs.filter((img) => img !== path));
   };
 
   const removeNew = (index: number) => {
@@ -83,7 +77,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
 
     const fd = new FormData(formRef.current!);
 
-    keptImages.forEach((img) => fd.append("existingImages", JSON.stringify(img)));
+    keptImages.forEach((img) => fd.append("existingImages", img));
     newFiles.forEach((file) => fd.append("newImages", file));
 
     const result = product
@@ -224,7 +218,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
 
         <div className="flex gap-3 flex-wrap mb-3">
           {keptImages.map((img) => (
-            <div key={img._key} className="relative group">
+            <div key={img} className="relative group">
               <Image
                 src={urlFor(img).width(200).height(260).url()}
                 alt=""
@@ -234,7 +228,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
               />
               <button
                 type="button"
-                onClick={() => removeExisting(img._key)}
+                onClick={() => removeExisting(img)}
                 className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
               >
                 ×

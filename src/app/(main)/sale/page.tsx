@@ -1,6 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import { SALE_PRODUCTS_QUERY } from "@/sanity/lib/queries";
-import type { Product } from "@/sanity/lib/types";
+import { getSaleProducts } from "@/lib/data";
 import ProductGrid from "@/components/ProductGrid";
 import type { Metadata } from "next";
 
@@ -10,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SalePage() {
-  const products = await sanityFetch<Product[]>(SALE_PRODUCTS_QUERY, undefined, ["products"]);
+  const products = await getSaleProducts();
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

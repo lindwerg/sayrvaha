@@ -5,14 +5,13 @@ import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
-import { urlFor } from "@/sanity/image";
-import type { SanityImageSource } from "@sanity/image-url";
+import { urlFor } from "@/lib/image";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-export default function ProductGallery({ images }: { images: SanityImageSource[] }) {
+export default function ProductGallery({ images }: { images: string[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null);
 

@@ -1,12 +1,13 @@
-import type { SanityImageSource } from "@sanity/image-url";
-import type { PortableTextBlock } from "@portabletext/react";
+// Типы данных сайта. Формы максимально совпадают с прежними (Sanity),
+// чтобы не переписывать компоненты: slug остаётся { current }, есть _id.
+// Отличия: images — массив путей-строк, content страницы — HTML-строка.
 
 export interface Product {
   _id: string;
   name: string;
   slug: { current: string };
   price: number;
-  images: SanityImageSource[];
+  images: string[];
   sizes: string[];
   description?: string;
   category?: string;
@@ -14,18 +15,19 @@ export interface Product {
   isOnSale?: boolean;
   oldPrice?: number;
   isAvailable?: boolean;
+  order?: number;
 }
 
 export interface Page {
   _id: string;
   title: string;
   slug: { current: string };
-  content: PortableTextBlock[];
+  content: string;
 }
 
 export interface SiteSettings {
-  logo?: SanityImageSource;
-  heroImage?: SanityImageSource;
+  logo?: string;
+  heroImage?: string;
   heroTitle?: string;
   heroSubtitle?: string;
   heroQuote?: string;

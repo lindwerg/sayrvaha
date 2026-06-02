@@ -1,16 +1,10 @@
-import { writeClient } from "@/lib/sanity-admin";
-import type { SiteSettings } from "@/sanity/lib/types";
+import { getSiteSettings } from "@/lib/data";
 import SettingsForm from "./SettingsForm";
 
 export const dynamic = "force-dynamic";
 
-const SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
-  heroTitle, heroQuote, telegramBotUrl, instagramUrl, phone, email, address,
-  heroImage { asset-> { _id, url } }
-}`;
-
 export default async function AdminSettingsPage() {
-  const settings = await writeClient.fetch<SiteSettings & { heroImage?: { asset?: { _id: string; url: string } } }>(SETTINGS_QUERY);
+  const settings = await getSiteSettings();
 
   return (
     <div>

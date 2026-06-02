@@ -1,7 +1,4 @@
-import { sanityFetch } from "@/sanity/client";
-import { PAGE_BY_SLUG_QUERY } from "@/sanity/lib/queries";
-import type { Page } from "@/sanity/lib/types";
-import { PortableText } from "@portabletext/react";
+import { getPage } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ExchangePage() {
-  const page = await sanityFetch<Page>(PAGE_BY_SLUG_QUERY, { slug: "exchange" }, ["pages"]);
+  const page = await getPage("exchange");
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12">
@@ -20,7 +17,7 @@ export default async function ExchangePage() {
 
       {page?.content ? (
         <div className="prose prose-lg max-w-none [&_h2]:font-serif [&_h2]:text-xl [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:font-serif [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:text-muted [&_p]:leading-relaxed">
-          <PortableText value={page.content} />
+          <div dangerouslySetInnerHTML={{ __html: page.content }} />
         </div>
       ) : (
         <div className="text-muted space-y-6 leading-relaxed">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Product } from "@/sanity/lib/types";
+import type { Product } from "@/lib/types";
 import ProductGrid from "@/components/ProductGrid";
 
 const TABS = [

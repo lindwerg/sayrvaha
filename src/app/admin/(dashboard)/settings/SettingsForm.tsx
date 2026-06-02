@@ -13,7 +13,7 @@ interface SettingsData {
   phone?: string;
   email?: string;
   address?: string;
-  heroImage?: { asset?: { _id: string; url: string } };
+  heroImage?: string;
 }
 
 export default function SettingsForm({
@@ -109,9 +109,9 @@ export default function SettingsForm({
 
         <div>
           <label className="block text-sm mb-1.5">Фото баннера</label>
-          {(preview || settings?.heroImage?.asset?.url) && (
+          {(preview || settings?.heroImage) && (
             <img
-              src={preview || settings?.heroImage?.asset?.url || ""}
+              src={preview || settings?.heroImage || ""}
               alt="Hero"
               className="w-full max-w-md h-48 object-cover rounded border border-border mb-2"
             />

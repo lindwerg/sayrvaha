@@ -2,12 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.sanity.io",
-      },
-    ],
+    // Картинки лежат локально и отдаются с того же домена (/uploads/...),
+    // их оптимизирует встроенный загрузчик next/image. Внешние источники
+    // больше не нужны.
+    formats: ["image/avif", "image/webp"],
   },
   experimental: {
     serverActions: {

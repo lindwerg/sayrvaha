@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { urlFor } from "@/sanity/image";
-import type { Product } from "@/sanity/lib/types";
+import { urlFor } from "@/lib/image";
+import type { Product } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: Product }) {
   const imageUrl = product.images?.[0]
