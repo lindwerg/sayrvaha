@@ -17,6 +17,7 @@ interface SettingsData {
   cartEnabled?: boolean;
   telegramOrderEnabled?: boolean;
   telegramButtonText?: string;
+  onlinePaymentEnabled?: boolean;
 }
 
 export default function SettingsForm({
@@ -239,6 +240,22 @@ export default function SettingsForm({
             <span className="block text-sm">Кнопка «Заказать в Telegram»</span>
             <span className="block text-xs text-muted mt-0.5">
               Показывает кнопку заказа через Telegram на странице товара.
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="onlinePaymentEnabled"
+            defaultChecked={settings?.onlinePaymentEnabled ?? false}
+            className="mt-1 w-4 h-4 accent-primary"
+          />
+          <span>
+            <span className="block text-sm">Онлайн-оплата картой (Т-Банк)</span>
+            <span className="block text-xs text-muted mt-0.5">
+              При оформлении заказа покупатель переходит на оплату картой через Т-Банк.
+              Требует настроенного терминала. Работает только вместе с корзиной.
             </span>
           </span>
         </label>

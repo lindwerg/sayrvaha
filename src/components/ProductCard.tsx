@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/lib/image";
-import AddToCartButton from "./cart/AddToCartButton";
 import type { Product } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -66,10 +65,6 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </p>
       </Link>
-
-      <div className="mt-auto pt-3">
-        <AddToCartButton product={product} variant="compact" />
-      </div>
     </div>
   );
 }

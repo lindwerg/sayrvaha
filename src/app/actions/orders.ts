@@ -10,6 +10,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
+import { initPayment, getPaymentState, mapPaymentStatus } from "@/lib/tinkoff";
 import type { OrderItem } from "@/lib/types";
 
 const MAX_LINES = 50;
@@ -37,7 +38,9 @@ export interface CreateOrderInput {
   company?: string;
 }
 
-type ActionResult = { success: true; orderId: string } | { error: string };
+type ActionResult =
+  | { success: true; orderId: string; paymentUrl?: string }
+  | { error: string };
 
 function clean(value: unknown, max: number): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -105,7 +108,60 @@ export async function createOrderAction(input: CreateOrderInput): Promise<Action
   });
 
   revalidatePath("/admin/orders");
+
+  // 5. Онлайн-оплата (если включена): создаём платёж и отдаём ссылку на форму банка.
+  // Заказ уже сохранён — при ошибке оплаты не теряем его, покупателю показываем обычное «Заказ принят».
+  if (settings.onlinePaymentEnabled) {
+    const baseUrl = process.env.APP_BASE_URL;
+    if (!baseUrl) {
+      console.error("[payment] APP_BASE_URL не задан — оплата пропущена");
+      return { success: true, orderId: order.id };
+    }
+    try {
+      const { paymentId, paymentUrl } = await initPayment(
+        { id: order.id, phone, items },
+        baseUrl,
+      );
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentId, paymentStatus: "pending" },
+      });
+      return { success: true, orderId: order.id, paymentUrl };
+    } catch (error) {
+      console.error("[payment] Init failed:", error);
+      return { success: true, orderId: order.id };
+    }
+  }
+
   return { success: true, orderId: order.id };
+}
+
+// Подтверждение оплаты по возврату с формы банка (страница /cart/success).
+// Идемпотентно: спрашивает у Т-Банка статус и при CONFIRMED помечает заказ оплаченным.
+export async function confirmOrderPayment(orderId: string): Promise<{ paymentStatus: string }> {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) return { paymentStatus: "none" };
+  if (order.paymentStatus === "paid") return { paymentStatus: "paid" };
+  if (!order.paymentId) return { paymentStatus: order.paymentStatus };
+
+  try {
+    const tinkoffStatus = await getPaymentState(order.paymentId);
+    const paymentStatus = mapPaymentStatus(tinkoffStatus);
+    if (paymentStatus !== order.paymentStatus) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          paymentStatus,
+          paidAt: paymentStatus === "paid" ? new Date() : order.paidAt,
+        },
+      });
+      revalidatePath("/admin/orders");
+    }
+    return { paymentStatus };
+  } catch (error) {
+    console.error("[payment] GetState failed:", error);
+    return { paymentStatus: order.paymentStatus };
+  }
 }
 
 // ─── Админские действия ───

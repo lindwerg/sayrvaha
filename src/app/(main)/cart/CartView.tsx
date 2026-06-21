@@ -7,7 +7,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { urlFor } from "@/lib/image";
 import { createOrderAction } from "@/app/actions/orders";
 
-export default function CartView() {
+export default function CartView({ paymentEnabled = false }: { paymentEnabled?: boolean }) {
   const { items, total, updateQty, removeItem, clear } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,10 +30,17 @@ export default function CartView() {
 
     if ("error" in result) {
       setError(result.error);
-    } else {
-      clear();
-      setDone(true);
+      setLoading(false);
+      return;
     }
+
+    clear();
+    if (result.paymentUrl) {
+      // Переход на платёжную форму Т-Банка (loading оставляем включённым до ухода со страницы).
+      window.location.href = result.paymentUrl;
+      return;
+    }
+    setDone(true);
     setLoading(false);
   };
 
@@ -166,10 +173,18 @@ export default function CartView() {
             disabled={loading}
             className="w-full py-3.5 bg-foreground text-white text-sm uppercase tracking-wider hover:bg-foreground/85 transition-colors disabled:opacity-50"
           >
-            {loading ? "Отправка..." : "Оформить заказ"}
+            {loading
+              ? paymentEnabled
+                ? "Переход к оплате..."
+                : "Отправка..."
+              : paymentEnabled
+                ? "Перейти к оплате"
+                : "Оформить заказ"}
           </button>
           <p className="text-xs text-muted text-center">
-            Нажимая «Оформить заказ», вы соглашаетесь на обработку данных
+            {paymentEnabled
+              ? "Оплата картой онлайн через Т-Банк. Нажимая кнопку, вы соглашаетесь на обработку данных"
+              : "Нажимая «Оформить заказ», вы соглашаетесь на обработку данных"}
           </p>
         </form>
       </div>

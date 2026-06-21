@@ -49,6 +49,7 @@ export interface SiteSettings {
   cartEnabled?: boolean;
   telegramOrderEnabled?: boolean;
   telegramButtonText?: string;
+  onlinePaymentEnabled?: boolean;
 }
 
 // Позиция в корзине (живёт в localStorage на клиенте).
@@ -81,4 +82,7 @@ export interface Order {
   items: OrderItem[];
   total: number;
   status: string;
+  paymentId?: string;
+  paymentStatus?: string;
+  paidAt?: string;
 }

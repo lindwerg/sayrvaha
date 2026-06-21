@@ -263,6 +263,7 @@ export async function updateSettingsAction(formData: FormData) {
   const flags = {
     cartEnabled: formData.get("cartEnabled") === "on",
     telegramOrderEnabled: formData.get("telegramOrderEnabled") === "on",
+    onlinePaymentEnabled: formData.get("onlinePaymentEnabled") === "on",
   };
 
   const heroFile = formData.get("heroImage") as File | null;

@@ -14,6 +14,25 @@ function formatDate(iso: string): string {
   });
 }
 
+const PAYMENT_BADGES: Record<string, { label: string; className: string }> = {
+  paid: { label: "Оплачено", className: "bg-green-100 text-green-700" },
+  pending: { label: "Ожидает оплаты", className: "bg-amber-100 text-amber-700" },
+  rejected: { label: "Оплата отклонена", className: "bg-red-100 text-red-600" },
+  refunded: { label: "Возврат", className: "bg-gray-100 text-gray-600" },
+};
+
+function PaymentBadge({ status }: { status?: string }) {
+  // "none" / без оплаты (заказ без онлайн-оплаты) — бейдж не показываем.
+  if (!status || status === "none") return null;
+  const badge = PAYMENT_BADGES[status];
+  if (!badge) return null;
+  return (
+    <span className={`inline-block text-xs px-2 py-0.5 rounded ${badge.className}`}>
+      {badge.label}
+    </span>
+  );
+}
+
 export default async function OrdersPage() {
   const orders = await getOrders();
 
@@ -37,6 +56,9 @@ export default async function OrdersPage() {
                     {order.phone}
                   </a>
                   <p className="text-xs text-muted mt-1">{formatDate(order.createdAt)}</p>
+                  <div className="mt-2">
+                    <PaymentBadge status={order.paymentStatus} />
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <OrderStatusSelect orderId={order._id} status={order.status} />

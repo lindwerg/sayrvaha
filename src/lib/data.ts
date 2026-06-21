@@ -127,6 +127,7 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     cartEnabled: row.cartEnabled,
     telegramOrderEnabled: row.telegramOrderEnabled,
     telegramButtonText: row.telegramButtonText ?? undefined,
+    onlinePaymentEnabled: row.onlinePaymentEnabled,
   };
 }
 
@@ -142,6 +143,9 @@ interface OrderRow {
   items: string;
   total: number;
   status: string;
+  paymentId: string | null;
+  paymentStatus: string;
+  paidAt: Date | null;
 }
 
 function toOrder(row: OrderRow): Order {
@@ -162,6 +166,9 @@ function toOrder(row: OrderRow): Order {
     items,
     total: row.total,
     status: row.status,
+    paymentId: row.paymentId ?? undefined,
+    paymentStatus: row.paymentStatus,
+    paidAt: row.paidAt ? row.paidAt.toISOString() : undefined,
   };
 }
 

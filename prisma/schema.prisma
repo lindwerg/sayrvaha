@@ -58,6 +58,7 @@ model SiteSettings {
   cartEnabled          Boolean @default(false) // корзина выключена по умолчанию
   telegramOrderEnabled Boolean @default(true)  // кнопка заказа через Telegram
   telegramButtonText   String? // текст кнопки Telegram (по умолч. «Заказать пошив в Telegram»)
+  onlinePaymentEnabled Boolean @default(false) // онлайн-оплата картой (Т-Банк)
 }
 
 // Заказы из корзины. items — JSON-массив позиций (см. OrderItem в types.ts).
@@ -71,6 +72,11 @@ model Order {
   items     String   @default("[]") // JSON: [{productId,name,size,qty,price}]
   total     Float    @default(0)
   status    String   @default("new") // new | processing | done | cancelled
+
+  // Онлайн-оплата (Т-Банк)
+  paymentId     String?   // PaymentId от Т-Банка
+  paymentStatus String    @default("none") // none | pending | paid | rejected | refunded
+  paidAt        DateTime?
 
   @@index([status, createdAt])
 }

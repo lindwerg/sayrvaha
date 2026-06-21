@@ -30,7 +30,7 @@ export default async function CartPage() {
   return (
     <section className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-2xl md:text-3xl font-serif mb-8">Корзина</h1>
-      <CartView />
+      <CartView paymentEnabled={settings.onlinePaymentEnabled ?? false} />
     </section>
   );
 }
