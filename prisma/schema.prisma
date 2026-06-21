@@ -20,6 +20,9 @@ model Product {
   category    String?
   sizes       String   @default("[]") // JSON-массив строк: ["S","M","L"]
   images      String   @default("[]") // JSON-массив путей: ["/uploads/ab.jpg"]
+  composition String?  // Состав
+  care        String?  // Уход
+  sizeChart   String   @default("[]") // JSON: [{size,bust,waist,hips}]
   isNew       Boolean  @default(false)
   isOnSale    Boolean  @default(false)
   oldPrice    Float?
@@ -53,7 +56,8 @@ model SiteSettings {
 
   // Тумблеры функций (управляются из админки /admin/settings)
   cartEnabled          Boolean @default(false) // корзина выключена по умолчанию
-  telegramOrderEnabled Boolean @default(true)  // кнопка «Заказать в Telegram»
+  telegramOrderEnabled Boolean @default(true)  // кнопка заказа через Telegram
+  telegramButtonText   String? // текст кнопки Telegram (по умолч. «Заказать пошив в Telegram»)
 }
 
 // Заказы из корзины. items — JSON-массив позиций (см. OrderItem в types.ts).

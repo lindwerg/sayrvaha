@@ -2,7 +2,7 @@
 // Возвращает объекты в той же форме, что раньше отдавал Sanity.
 
 import { prisma } from "@/lib/db";
-import type { Product, Page, SiteSettings, Order, OrderItem } from "@/lib/types";
+import type { Product, Page, SiteSettings, Order, OrderItem, SizeChartRow } from "@/lib/types";
 
 interface ProductRow {
   id: string;
@@ -12,6 +12,9 @@ interface ProductRow {
   images: string;
   sizes: string;
   description: string | null;
+  composition: string | null;
+  care: string | null;
+  sizeChart: string;
   category: string | null;
   isNew: boolean;
   isOnSale: boolean;
@@ -29,6 +32,23 @@ function parseJsonArray(value: string): string[] {
   }
 }
 
+function parseSizeChart(value: string): SizeChartRow[] {
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((r): r is SizeChartRow => !!r && typeof r === "object" && typeof r.size === "string")
+      .map((r) => ({
+        size: r.size,
+        bust: r.bust || undefined,
+        waist: r.waist || undefined,
+        hips: r.hips || undefined,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 function toProduct(row: ProductRow): Product {
   return {
     _id: row.id,
@@ -38,6 +58,9 @@ function toProduct(row: ProductRow): Product {
     images: parseJsonArray(row.images),
     sizes: parseJsonArray(row.sizes),
     description: row.description ?? undefined,
+    composition: row.composition ?? undefined,
+    care: row.care ?? undefined,
+    sizeChart: parseSizeChart(row.sizeChart),
     category: row.category ?? undefined,
     isNew: row.isNew,
     isOnSale: row.isOnSale,
@@ -103,6 +126,7 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     address: row.address ?? undefined,
     cartEnabled: row.cartEnabled,
     telegramOrderEnabled: row.telegramOrderEnabled,
+    telegramButtonText: row.telegramButtonText ?? undefined,
   };
 }
 

@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { urlFor } from "@/lib/image";
 import { createProductAction, updateProductAction } from "../../actions";
+import type { SizeChartRow } from "@/lib/types";
 
 interface ProductData {
   _id: string;
   name: string;
   price: number;
   description?: string;
+  composition?: string;
+  care?: string;
+  sizeChart?: SizeChartRow[];
   category?: string;
   sizes?: string[];
   isNew?: boolean;
@@ -34,7 +38,22 @@ const CATEGORIES = [
   { value: "homewear", label: "Одежда для дома" },
 ];
 
-const SIZES = ["XS", "S", "M", "L", "XL"];
+const SIZES = ["XS", "S", "M", "L"];
+
+// Размеры, для которых заполняется размерная сетка (обхваты в см).
+const CHART_SIZES = ["XS", "S", "M", "L"];
+
+function initChart(existing?: SizeChartRow[]): SizeChartRow[] {
+  return CHART_SIZES.map((size) => {
+    const row = existing?.find((r) => r.size === size);
+    return {
+      size,
+      bust: row?.bust ?? "",
+      waist: row?.waist ?? "",
+      hips: row?.hips ?? "",
+    };
+  });
+}
 
 export default function ProductForm({ product }: { product?: ProductData }) {
   const router = useRouter();
@@ -48,6 +67,13 @@ export default function ProductForm({ product }: { product?: ProductData }) {
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [showOldPrice, setShowOldPrice] = useState(product?.isOnSale ?? false);
+  const [chart, setChart] = useState<SizeChartRow[]>(initChart(product?.sizeChart));
+
+  const updateChart = (size: string, field: "bust" | "waist" | "hips", value: string) => {
+    setChart((rows) =>
+      rows.map((r) => (r.size === size ? { ...r, [field]: value } : r)),
+    );
+  };
 
   const removeExisting = (path: string) => {
     setKeptImages((imgs) => imgs.filter((img) => img !== path));
@@ -79,6 +105,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
 
     keptImages.forEach((img) => fd.append("existingImages", img));
     newFiles.forEach((file) => fd.append("newImages", file));
+    fd.set("sizeChart", JSON.stringify(chart));
 
     const result = product
       ? await updateProductAction(product._id, fd)
@@ -166,6 +193,66 @@ export default function ProductForm({ product }: { product?: ProductData }) {
           defaultValue={product?.description}
           className={inputClass}
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1.5">Состав</label>
+        <textarea
+          name="composition"
+          rows={2}
+          defaultValue={product?.composition}
+          placeholder="Напр.: 80% полиамид, 20% эластан"
+          className={inputClass}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1.5">Уход</label>
+        <textarea
+          name="care"
+          rows={2}
+          defaultValue={product?.care}
+          placeholder="Напр.: ручная стирка при 30°, не отбеливать, сушить горизонтально"
+          className={inputClass}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1.5">Размерная сетка (см)</label>
+        <p className="text-xs text-muted mb-2">
+          Заполните обхваты для нужных размеров. Пустые строки на сайте не показываются.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="text-sm border border-border">
+            <thead>
+              <tr className="bg-warm-gray">
+                <th className="px-3 py-2 text-left font-medium">Размер</th>
+                <th className="px-3 py-2 text-left font-medium">Грудь</th>
+                <th className="px-3 py-2 text-left font-medium">Талия</th>
+                <th className="px-3 py-2 text-left font-medium">Бёдра</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chart.map((row) => (
+                <tr key={row.size} className="border-t border-border">
+                  <td className="px-3 py-1.5 font-medium">{row.size}</td>
+                  {(["bust", "waist", "hips"] as const).map((field) => (
+                    <td key={field} className="px-1.5 py-1.5">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={row[field] ?? ""}
+                        onChange={(e) => updateChart(row.size, field, e.target.value)}
+                        placeholder="—"
+                        className="w-20 border border-border px-2 py-1 text-sm focus:outline-none focus:border-primary bg-white"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="flex gap-6">

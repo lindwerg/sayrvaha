@@ -2,6 +2,13 @@
 // чтобы не переписывать компоненты: slug остаётся { current }, есть _id.
 // Отличия: images — массив путей-строк, content страницы — HTML-строка.
 
+export interface SizeChartRow {
+  size: string;
+  bust?: string;
+  waist?: string;
+  hips?: string;
+}
+
 export interface Product {
   _id: string;
   name: string;
@@ -10,6 +17,9 @@ export interface Product {
   images: string[];
   sizes: string[];
   description?: string;
+  composition?: string;
+  care?: string;
+  sizeChart?: SizeChartRow[];
   category?: string;
   isNew?: boolean;
   isOnSale?: boolean;
@@ -38,6 +48,7 @@ export interface SiteSettings {
   address?: string;
   cartEnabled?: boolean;
   telegramOrderEnabled?: boolean;
+  telegramButtonText?: string;
 }
 
 // Позиция в корзине (живёт в localStorage на клиенте).

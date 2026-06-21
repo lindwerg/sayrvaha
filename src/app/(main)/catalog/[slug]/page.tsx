@@ -41,6 +41,7 @@ export default async function ProductPage({ params }: Props) {
         product={product}
         telegramBotUrl={settings?.telegramBotUrl}
         telegramOrderEnabled={settings?.telegramOrderEnabled ?? true}
+        telegramButtonText={settings?.telegramButtonText}
       />
     </section>
   );

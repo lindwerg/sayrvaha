@@ -6,10 +6,12 @@ export default function ProductDetails({
   product,
   telegramBotUrl,
   telegramOrderEnabled = true,
+  telegramButtonText,
 }: {
   product: Product;
   telegramBotUrl?: string;
   telegramOrderEnabled?: boolean;
+  telegramButtonText?: string;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -34,19 +36,28 @@ export default function ProductDetails({
           product={product}
           telegramOrderEnabled={telegramOrderEnabled}
           telegramBotUrl={telegramBotUrl}
+          telegramButtonText={telegramButtonText}
         />
 
         {product.description && (
-          <div>
-            <h2 className="text-sm font-medium uppercase tracking-wider mb-3">
-              Описание
-            </h2>
-            <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
-              {product.description}
-            </p>
-          </div>
+          <Section title="Описание">{product.description}</Section>
         )}
+        {product.composition && (
+          <Section title="Состав">{product.composition}</Section>
+        )}
+        {product.care && <Section title="Уход">{product.care}</Section>}
       </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: string }) {
+  return (
+    <div>
+      <h2 className="text-sm font-medium uppercase tracking-wider mb-3">{title}</h2>
+      <p className="text-sm text-muted whitespace-pre-line leading-relaxed">
+        {children}
+      </p>
     </div>
   );
 }

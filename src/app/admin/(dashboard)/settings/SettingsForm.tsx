@@ -16,6 +16,7 @@ interface SettingsData {
   heroImage?: string;
   cartEnabled?: boolean;
   telegramOrderEnabled?: boolean;
+  telegramButtonText?: string;
 }
 
 export default function SettingsForm({
@@ -150,6 +151,19 @@ export default function SettingsForm({
             placeholder="https://t.me/bliss_ling"
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">Текст кнопки Telegram</label>
+          <input
+            name="telegramButtonText"
+            defaultValue={settings?.telegramButtonText}
+            placeholder="Заказать пошив в Telegram"
+            className={inputClass}
+          />
+          <p className="text-xs text-muted mt-1">
+            Кнопка на странице товара (индивидуальный пошив). Пусто — текст по умолчанию.
+          </p>
         </div>
 
         <div>

@@ -78,6 +78,30 @@ function parseExistingImages(formData: FormData): string[] {
   return formData.getAll("existingImages").map((v) => String(v));
 }
 
+// Размерная сетка приходит JSON-строкой. Не доверяем вводу: оставляем только
+// строки с размером и числовыми обхватами, выкидываем полностью пустые.
+function cleanSizeChart(raw: FormDataEntryValue | null): string {
+  if (typeof raw !== "string" || !raw) return "[]";
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return "[]";
+    const num = (v: unknown) =>
+      typeof v === "string" && v.trim() !== "" ? v.trim().slice(0, 10) : undefined;
+    const rows = parsed
+      .filter((r) => r && typeof r === "object" && typeof r.size === "string")
+      .map((r) => ({
+        size: String(r.size).slice(0, 20),
+        bust: num(r.bust),
+        waist: num(r.waist),
+        hips: num(r.hips),
+      }))
+      .filter((r) => r.bust || r.waist || r.hips);
+    return JSON.stringify(rows);
+  } catch {
+    return "[]";
+  }
+}
+
 function revalidateProductPages() {
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
@@ -93,6 +117,9 @@ export async function createProductAction(formData: FormData) {
   const name = formData.get("name") as string;
   const price = Number(formData.get("price"));
   const description = (formData.get("description") as string) || "";
+  const composition = (formData.get("composition") as string) || "";
+  const care = (formData.get("care") as string) || "";
+  const sizeChart = cleanSizeChart(formData.get("sizeChart"));
   const category = (formData.get("category") as string) || "";
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
@@ -110,6 +137,9 @@ export async function createProductAction(formData: FormData) {
       slug: await uniqueSlug(slugify(name)),
       price,
       description,
+      composition,
+      care,
+      sizeChart,
       category: category || null,
       sizes: JSON.stringify(sizes),
       images: JSON.stringify(images),
@@ -131,6 +161,9 @@ export async function updateProductAction(id: string, formData: FormData) {
   const name = formData.get("name") as string;
   const price = Number(formData.get("price"));
   const description = (formData.get("description") as string) || "";
+  const composition = (formData.get("composition") as string) || "";
+  const care = (formData.get("care") as string) || "";
+  const sizeChart = cleanSizeChart(formData.get("sizeChart"));
   const category = (formData.get("category") as string) || "";
   const sizes = formData.getAll("sizes") as string[];
   const isNew = formData.get("isNew") === "on";
@@ -153,6 +186,9 @@ export async function updateProductAction(id: string, formData: FormData) {
       slug,
       price,
       description,
+      composition,
+      care,
+      sizeChart,
       category: category || null,
       sizes: JSON.stringify(sizes),
       images: JSON.stringify(images),
@@ -217,6 +253,7 @@ export async function updateSettingsAction(formData: FormData) {
     heroSubtitle: (formData.get("heroSubtitle") as string) || "",
     heroQuote: (formData.get("heroQuote") as string) || "",
     telegramBotUrl: (formData.get("telegramBotUrl") as string) || "",
+    telegramButtonText: (formData.get("telegramButtonText") as string) || "",
     instagramUrl: (formData.get("instagramUrl") as string) || "",
     phone: (formData.get("phone") as string) || "",
     email: (formData.get("email") as string) || "",
