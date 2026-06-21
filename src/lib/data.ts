@@ -110,6 +110,22 @@ export async function getPage(slug: string): Promise<Page | null> {
   };
 }
 
+// Загружает несколько страниц по slug. Возвращает map slug -> Page
+// (порядок и наличие контролирует вызывающий код).
+export async function getPagesBySlugs(slugs: string[]): Promise<Record<string, Page>> {
+  const rows = await prisma.page.findMany({ where: { slug: { in: slugs } } });
+  const map: Record<string, Page> = {};
+  for (const row of rows) {
+    map[row.slug] = {
+      _id: row.id,
+      title: row.title,
+      slug: { current: row.slug },
+      content: row.content,
+    };
+  }
+  return map;
+}
+
 export async function getSiteSettings(): Promise<SiteSettings | null> {
   const row = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
   if (!row) return null;
@@ -128,6 +144,10 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     telegramOrderEnabled: row.telegramOrderEnabled,
     telegramButtonText: row.telegramButtonText ?? undefined,
     onlinePaymentEnabled: row.onlinePaymentEnabled,
+    ipName: row.ipName ?? undefined,
+    ipInn: row.ipInn ?? undefined,
+    ipOgrnip: row.ipOgrnip ?? undefined,
+    ipAddress: row.ipAddress ?? undefined,
   };
 }
 

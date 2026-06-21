@@ -35,6 +35,12 @@ export default async function AdminDashboardLayout({
             Заказы
           </Link>
           <Link
+            href="/admin/pages"
+            className="block px-4 py-2.5 text-sm rounded hover:bg-warm-gray transition-colors"
+          >
+            Страницы
+          </Link>
+          <Link
             href="/admin/settings"
             className="block px-4 py-2.5 text-sm rounded hover:bg-warm-gray transition-colors"
           >

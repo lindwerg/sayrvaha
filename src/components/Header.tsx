@@ -4,15 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import { useCart } from "./cart/CartContext";
-
-const navLinks = [
-  { href: "/", label: "Главная" },
-  { href: "/catalog", label: "Каталог" },
-  { href: "/exchange", label: "Возврат" },
-  { href: "/delivery", label: "Доставка" },
-  { href: "/sale", label: "Sale" },
-  { href: "/contacts", label: "Контакты" },
-];
+import { NAV_LINKS } from "@/lib/nav";
 
 function CartIcon({ onNavigate }: { onNavigate?: () => void }) {
   const { count } = useCart();
@@ -72,7 +64,7 @@ export default function Header({ cartEnabled = false }: { cartEnabled?: boolean 
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
+          {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -115,12 +107,12 @@ export default function Header({ cartEnabled = false }: { cartEnabled?: boolean 
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          isOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <nav className="bg-white border-t border-border">
           <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-5">
-            {navLinks.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -18,6 +18,10 @@ interface SettingsData {
   telegramOrderEnabled?: boolean;
   telegramButtonText?: string;
   onlinePaymentEnabled?: boolean;
+  ipName?: string;
+  ipInn?: string;
+  ipOgrnip?: string;
+  ipAddress?: string;
 }
 
 export default function SettingsForm({
@@ -204,6 +208,55 @@ export default function SettingsForm({
             name="address"
             defaultValue={settings?.address}
             placeholder="Москва, ул. Примерная, д. 1"
+            className={inputClass}
+          />
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
+          Реквизиты (ИП)
+        </legend>
+        <p className="text-xs text-muted -mt-1">
+          Показываются на странице «Контакты», внизу «Оферта и политика» и в подвале сайта.
+        </p>
+
+        <div>
+          <label className="block text-sm mb-1.5">Наименование ИП</label>
+          <input
+            name="ipName"
+            defaultValue={settings?.ipName}
+            placeholder="ИП Иванова Ксения Сергеевна"
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">ИНН</label>
+          <input
+            name="ipInn"
+            defaultValue={settings?.ipInn}
+            placeholder="660000000000"
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">ОГРНИП</label>
+          <input
+            name="ipOgrnip"
+            defaultValue={settings?.ipOgrnip}
+            placeholder="300000000000000"
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1.5">Юридический адрес</label>
+          <input
+            name="ipAddress"
+            defaultValue={settings?.ipAddress}
+            placeholder="г. Екатеринбург, ул. ..."
             className={inputClass}
           />
         </div>

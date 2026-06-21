@@ -59,6 +59,12 @@ model SiteSettings {
   telegramOrderEnabled Boolean @default(true)  // кнопка заказа через Telegram
   telegramButtonText   String? // текст кнопки Telegram (по умолч. «Заказать пошив в Telegram»)
   onlinePaymentEnabled Boolean @default(false) // онлайн-оплата картой (Т-Банк)
+
+  // Реквизиты ИП (для контактов, подвала, оферты/политики)
+  ipName    String? // «ИП Иванова Ксения Сергеевна»
+  ipInn     String? // ИНН
+  ipOgrnip  String? // ОГРНИП
+  ipAddress String? // юридический адрес
 }
 
 // Заказы из корзины. items — JSON-массив позиций (см. OrderItem в types.ts).

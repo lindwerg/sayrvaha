@@ -1,5 +1,9 @@
 import { getPage } from "@/lib/data";
+import PageContent from "@/components/PageContent";
 import type { Metadata } from "next";
+
+// Динамический рендер: страница всегда читает актуальный текст из БД (правки админки).
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Возврат — BLISS brand",
@@ -15,12 +19,10 @@ export default async function ExchangePage() {
         {page?.title || "Возврат"}
       </h1>
 
-      {page?.content ? (
-        <div className="prose prose-lg max-w-none [&_h2]:font-serif [&_h2]:text-xl [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:font-serif [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:text-muted [&_p]:leading-relaxed">
-          <div dangerouslySetInnerHTML={{ __html: page.content }} />
-        </div>
-      ) : (
-        <div className="text-muted space-y-6 leading-relaxed">
+      <PageContent
+        text={page?.content}
+        fallback={
+          <div className="text-muted space-y-6 leading-relaxed">
           <h2 className="text-xl font-serif text-foreground">Как оформить возврат или обмен?</h2>
           <p>
             Если вам не подошли один или несколько товаров, вы можете их обменять или вернуть
@@ -78,7 +80,8 @@ export default async function ExchangePage() {
             обеспечение функциональных качеств и потребительских свойств.
           </p>
         </div>
-      )}
+        }
+      />
     </section>
   );
 }

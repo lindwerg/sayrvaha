@@ -50,6 +50,10 @@ export interface SiteSettings {
   telegramOrderEnabled?: boolean;
   telegramButtonText?: string;
   onlinePaymentEnabled?: boolean;
+  ipName?: string;
+  ipInn?: string;
+  ipOgrnip?: string;
+  ipAddress?: string;
 }
 
 // Позиция в корзине (живёт в localStorage на клиенте).

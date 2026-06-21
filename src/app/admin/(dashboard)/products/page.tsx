@@ -1,9 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getAllProducts } from "@/lib/data";
-import { urlFor } from "@/lib/image";
-import DeleteButton from "./DeleteButton";
-import MoveButtons from "./MoveButtons";
+import SortableProducts from "./SortableProducts";
 
 export const dynamic = "force-dynamic";
 
@@ -33,73 +30,7 @@ export default async function AdminProductsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white shadow-sm">
-          {products.map((product, index) => (
-            <div
-              key={product._id}
-              className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-warm-gray/50 transition-colors"
-            >
-              <MoveButtons
-                id={product._id}
-                isFirst={index === 0}
-                isLast={index === products.length - 1}
-              />
-              {product.images?.[0] ? (
-                <Image
-                  src={urlFor(product.images[0]).width(120).height(120).url()}
-                  alt={product.name}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 object-cover rounded shrink-0"
-                />
-              ) : (
-                <div className="w-12 h-12 bg-warm-gray rounded shrink-0" />
-              )}
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{product.name}</p>
-                <p className="text-xs text-muted">
-                  {product.price?.toLocaleString("ru-RU")} ₽
-                  {product.sizes?.length
-                    ? ` · ${product.sizes.join(", ")}`
-                    : ""}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {product.isNew && (
-                  <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded">
-                    New
-                  </span>
-                )}
-                {product.isOnSale && (
-                  <span className="text-[10px] px-2 py-0.5 bg-red-50 text-red-600 rounded">
-                    Sale
-                  </span>
-                )}
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded ${
-                    product.isAvailable !== false
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-700"
-                  }`}
-                >
-                  {product.isAvailable !== false ? "Виден" : "Скрыт"}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3 shrink-0">
-                <Link
-                  href={`/admin/products/${product._id}`}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Изменить
-                </Link>
-                <DeleteButton id={product._id} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <SortableProducts products={products} />
       )}
     </div>
   );

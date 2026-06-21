@@ -25,17 +25,20 @@ async function main() {
     },
   });
 
-  // Страницы (exchange/custom). Пустой content => на сайте показывается
-  // встроенный текст по умолчанию. Заполнятся при миграции из Sanity.
-  for (const slug of ["exchange", "custom"]) {
+  // Редактируемые страницы. Пустой content => на сайте показывается
+  // встроенный текст по умолчанию. update:{} — не затираем заполненный текст.
+  const pages = [
+    { slug: "exchange", title: "Возврат" },
+    { slug: "delivery", title: "Доставка" },
+    { slug: "custom", title: "Индивидуальный пошив" },
+    { slug: "offer", title: "Публичная оферта" },
+    { slug: "privacy", title: "Политика конфиденциальности" },
+  ];
+  for (const { slug, title } of pages) {
     await prisma.page.upsert({
       where: { slug },
       update: {},
-      create: {
-        slug,
-        title: slug === "exchange" ? "Возврат" : "Индивидуальный пошив",
-        content: "",
-      },
+      create: { slug, title, content: "" },
     });
   }
 

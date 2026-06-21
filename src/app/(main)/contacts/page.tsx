@@ -1,5 +1,9 @@
 import { getSiteSettings } from "@/lib/data";
+import IpRequisites from "@/components/IpRequisites";
 import type { Metadata } from "next";
+
+// Динамический рендер: контакты и реквизиты всегда из актуальных настроек.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Контакты — BLISS brand",
@@ -76,6 +80,12 @@ export default async function ContactsPage() {
             <p className="text-lg">{settings.address}</p>
           </div>
         )}
+
+        <IpRequisites
+          settings={settings}
+          variant="block"
+          className="border-t border-border pt-6 mt-2 space-y-1"
+        />
 
         {!settings && (
           <div className="text-center text-muted py-8">

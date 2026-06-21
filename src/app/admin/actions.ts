@@ -10,6 +10,7 @@ import {
 } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { saveUpload } from "@/lib/uploads";
+import { getEditablePage } from "@/lib/pages";
 
 // ─── Auth ───
 
@@ -126,7 +127,9 @@ export async function createProductAction(formData: FormData) {
   const isOnSale = formData.get("isOnSale") === "on";
   const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : null;
   const isAvailable = formData.get("isAvailable") === "on";
-  const order = Number(formData.get("order")) || 0;
+  // Новый товар — в конец списка (order = max + 1), чтобы не прыгал наверх.
+  const maxOrder = await prisma.product.aggregate({ _max: { order: true } });
+  const order = (maxOrder._max.order ?? -1) + 1;
 
   const images = await uploadImages(formData);
   if (images.length === 0) return { error: "Добавьте хотя бы одно фото" };
@@ -213,33 +216,41 @@ export async function deleteProductAction(formData: FormData) {
   return { success: true };
 }
 
-export async function moveProductAction(id: string, direction: "up" | "down") {
+// Сохраняет новый порядок товаров: order = индекс в переданном списке.
+// Сплошная перенумерация устраняет коллизии order=0 и «скачки».
+export async function reorderProductsAction(ids: string[]) {
   if (!(await isAuthenticated())) return { error: "Не авторизован" };
+  if (!Array.isArray(ids) || ids.length === 0) return { error: "Пустой список" };
 
-  const products = await prisma.product.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-    select: { id: true, order: true },
-  });
-
-  const idx = products.findIndex((p) => p.id === id);
-  if (idx === -1) return { error: "Товар не найден" };
-
-  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-  if (swapIdx < 0 || swapIdx >= products.length) return { error: "Некуда двигать" };
-
-  const current = products[idx];
-  const neighbor = products[swapIdx];
-
-  const currentOrder = current.order ?? 0;
-  let neighborOrder = neighbor.order ?? 0;
-  if (currentOrder === neighborOrder) {
-    neighborOrder = direction === "up" ? currentOrder - 1 : currentOrder + 1;
-  }
-
-  await prisma.product.update({ where: { id: current.id }, data: { order: neighborOrder } });
-  await prisma.product.update({ where: { id: neighbor.id }, data: { order: currentOrder } });
+  await prisma.$transaction(
+    ids.map((id, index) =>
+      prisma.product.update({ where: { id }, data: { order: index } }),
+    ),
+  );
 
   revalidateProductPages();
+  return { success: true };
+}
+
+// ─── Страницы (редактируемый текст: доставка/возврат/оферта/политика/пошив) ───
+
+export async function updatePageAction(slug: string, formData: FormData) {
+  if (!(await isAuthenticated())) return { error: "Не авторизован" };
+
+  const page = getEditablePage(slug);
+  if (!page) return { error: "Неизвестная страница" };
+
+  const content = ((formData.get("content") as string) || "").slice(0, 50000);
+
+  await prisma.page.upsert({
+    where: { slug },
+    update: { content },
+    create: { slug, title: page.label, content },
+  });
+
+  revalidatePath("/admin/pages");
+  revalidatePath(`/admin/pages/${slug}`);
+  revalidatePath(page.path);
   return { success: true };
 }
 
@@ -258,6 +269,10 @@ export async function updateSettingsAction(formData: FormData) {
     phone: (formData.get("phone") as string) || "",
     email: (formData.get("email") as string) || "",
     address: (formData.get("address") as string) || "",
+    ipName: (formData.get("ipName") as string) || "",
+    ipInn: (formData.get("ipInn") as string) || "",
+    ipOgrnip: (formData.get("ipOgrnip") as string) || "",
+    ipAddress: (formData.get("ipAddress") as string) || "",
   };
 
   const flags = {

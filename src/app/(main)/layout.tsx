@@ -16,7 +16,7 @@ export default async function MainLayout({
       <div className="flex flex-col min-h-screen">
         <Header cartEnabled={cartEnabled} />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Footer settings={settings} />
       </div>
     </CartProvider>
   );
