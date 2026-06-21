@@ -36,4 +36,38 @@ export interface SiteSettings {
   phone?: string;
   email?: string;
   address?: string;
+  cartEnabled?: boolean;
+  telegramOrderEnabled?: boolean;
+}
+
+// Позиция в корзине (живёт в localStorage на клиенте).
+export interface CartItem {
+  productId: string;
+  name: string;
+  slug: string;
+  image?: string;
+  size?: string | null;
+  price: number;
+  qty: number;
+}
+
+// Позиция оформленного заказа (хранится в Order.items как JSON).
+export interface OrderItem {
+  productId: string;
+  name: string;
+  size?: string | null;
+  qty: number;
+  price: number;
+}
+
+export interface Order {
+  _id: string;
+  createdAt: string;
+  name: string;
+  phone: string;
+  address?: string;
+  comment?: string;
+  items: OrderItem[];
+  total: number;
+  status: string;
 }

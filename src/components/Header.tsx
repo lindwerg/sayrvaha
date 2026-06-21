@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
+import { useCart } from "./cart/CartContext";
 
 const navLinks = [
   { href: "/", label: "Главная" },
@@ -13,7 +14,40 @@ const navLinks = [
   { href: "/contacts", label: "Контакты" },
 ];
 
-export default function Header() {
+function CartIcon({ onNavigate }: { onNavigate?: () => void }) {
+  const { count } = useCart();
+  return (
+    <Link
+      href="/cart"
+      onClick={onNavigate}
+      aria-label={`Корзина${count ? `, товаров: ${count}` : ""}`}
+      className="relative inline-flex items-center justify-center p-2 text-foreground hover:text-primary transition-colors"
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="9" cy="20" r="1" />
+        <circle cx="18" cy="20" r="1" />
+        <path d="M2 2h3l2.4 12.3a2 2 0 0 0 2 1.7h7.7a2 2 0 0 0 2-1.6L23 6H6" />
+      </svg>
+      {count > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-medium leading-none">
+          {count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+export default function Header({ cartEnabled = false }: { cartEnabled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -49,12 +83,16 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Burger */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden flex flex-col gap-1.5 p-2"
-          aria-label="Меню"
-        >
+        {/* Right side: cart + burger */}
+        <div className="flex items-center gap-1">
+          {cartEnabled && <CartIcon />}
+
+          {/* Burger */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden flex flex-col gap-1.5 p-2"
+            aria-label="Меню"
+          >
           <span
             className={`block w-6 h-0.5 bg-foreground transition-all duration-300 ${
               isOpen ? "rotate-45 translate-y-2" : ""
@@ -70,7 +108,8 @@ export default function Header() {
               isOpen ? "-rotate-45 -translate-y-2" : ""
             }`}
           />
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}

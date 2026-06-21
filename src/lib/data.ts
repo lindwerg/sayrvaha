@@ -2,7 +2,7 @@
 // Возвращает объекты в той же форме, что раньше отдавал Sanity.
 
 import { prisma } from "@/lib/db";
-import type { Product, Page, SiteSettings } from "@/lib/types";
+import type { Product, Page, SiteSettings, Order, OrderItem } from "@/lib/types";
 
 interface ProductRow {
   id: string;
@@ -101,7 +101,56 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     phone: row.phone ?? undefined,
     email: row.email ?? undefined,
     address: row.address ?? undefined,
+    cartEnabled: row.cartEnabled,
+    telegramOrderEnabled: row.telegramOrderEnabled,
   };
+}
+
+// ─── Заказы ───
+
+interface OrderRow {
+  id: string;
+  createdAt: Date;
+  name: string;
+  phone: string;
+  address: string | null;
+  comment: string | null;
+  items: string;
+  total: number;
+  status: string;
+}
+
+function toOrder(row: OrderRow): Order {
+  let items: OrderItem[] = [];
+  try {
+    const parsed = JSON.parse(row.items);
+    if (Array.isArray(parsed)) items = parsed as OrderItem[];
+  } catch {
+    items = [];
+  }
+  return {
+    _id: row.id,
+    createdAt: row.createdAt.toISOString(),
+    name: row.name,
+    phone: row.phone,
+    address: row.address ?? undefined,
+    comment: row.comment ?? undefined,
+    items,
+    total: row.total,
+    status: row.status,
+  };
+}
+
+export async function getOrders(): Promise<Order[]> {
+  const rows = await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map(toOrder);
+}
+
+export async function getOrderById(id: string): Promise<Order | null> {
+  const row = await prisma.order.findUnique({ where: { id } });
+  return row ? toOrder(row) : null;
 }
 
 // ─── Админские функции (показывают все товары, включая скрытые) ───

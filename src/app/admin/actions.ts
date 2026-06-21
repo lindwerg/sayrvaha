@@ -223,17 +223,24 @@ export async function updateSettingsAction(formData: FormData) {
     address: (formData.get("address") as string) || "",
   };
 
+  const flags = {
+    cartEnabled: formData.get("cartEnabled") === "on",
+    telegramOrderEnabled: formData.get("telegramOrderEnabled") === "on",
+  };
+
   const heroFile = formData.get("heroImage") as File | null;
   const heroImage = heroFile && heroFile.size > 0 ? await saveUpload(heroFile) : undefined;
 
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },
-    create: { id: "singleton", ...data, ...(heroImage ? { heroImage } : {}) },
-    update: { ...data, ...(heroImage ? { heroImage } : {}) },
+    create: { id: "singleton", ...data, ...flags, ...(heroImage ? { heroImage } : {}) },
+    update: { ...data, ...flags, ...(heroImage ? { heroImage } : {}) },
   });
 
   revalidatePath("/admin/settings");
   revalidatePath("/");
+  revalidatePath("/cart");
+  revalidatePath("/catalog");
   revalidatePath("/contacts");
   return { success: true };
 }

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/lib/image";
+import AddToCartButton from "./cart/AddToCartButton";
 import type { Product } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -9,10 +10,11 @@ export default function ProductCard({ product }: { product: Product }) {
     : null;
 
   return (
-    <Link
-      href={`/catalog/${product.slug.current}`}
-      className="group block"
-    >
+    <div className="group block">
+      <Link
+        href={`/catalog/${product.slug.current}`}
+        className="block"
+      >
       <div className="relative aspect-[3/4] overflow-hidden bg-warm-gray mb-4">
         {imageUrl ? (
           <Image
@@ -50,19 +52,24 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      <h3 className="text-sm font-medium mb-1 group-hover:text-primary transition-colors duration-300">
-        {product.name}
-      </h3>
-      <p className="text-sm text-muted tracking-wide">
-        {product.isOnSale && product.oldPrice ? (
-          <>
-            <span className="line-through text-muted text-xs">{product.oldPrice.toLocaleString("ru-RU")} ₽</span>{" "}
-            <span className="text-red-600">{product.price.toLocaleString("ru-RU")} ₽</span>
-          </>
-        ) : (
-          <>{product.price.toLocaleString("ru-RU")} ₽</>
-        )}
-      </p>
-    </Link>
+        <h3 className="text-sm font-medium mb-1 group-hover:text-primary transition-colors duration-300">
+          {product.name}
+        </h3>
+        <p className="text-sm text-muted tracking-wide">
+          {product.isOnSale && product.oldPrice ? (
+            <>
+              <span className="line-through text-muted text-xs">{product.oldPrice.toLocaleString("ru-RU")} ₽</span>{" "}
+              <span className="text-red-600">{product.price.toLocaleString("ru-RU")} ₽</span>
+            </>
+          ) : (
+            <>{product.price.toLocaleString("ru-RU")} ₽</>
+          )}
+        </p>
+      </Link>
+
+      <div className="mt-3">
+        <AddToCartButton product={product} variant="compact" />
+      </div>
+    </div>
   );
 }

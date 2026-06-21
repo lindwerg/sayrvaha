@@ -50,4 +50,23 @@ model SiteSettings {
   phone          String?
   email          String?
   address        String?
+
+  // Тумблеры функций (управляются из админки /admin/settings)
+  cartEnabled          Boolean @default(false) // корзина выключена по умолчанию
+  telegramOrderEnabled Boolean @default(true)  // кнопка «Заказать в Telegram»
+}
+
+// Заказы из корзины. items — JSON-массив позиций (см. OrderItem в types.ts).
+model Order {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+  phone     String
+  address   String?
+  comment   String?
+  items     String   @default("[]") // JSON: [{productId,name,size,qty,price}]
+  total     Float    @default(0)
+  status    String   @default("new") // new | processing | done | cancelled
+
+  @@index([status, createdAt])
 }

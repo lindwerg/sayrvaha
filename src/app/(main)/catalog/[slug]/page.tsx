@@ -33,7 +33,11 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
-      <ProductDetails product={product} telegramBotUrl={settings?.telegramBotUrl} />
+      <ProductDetails
+        product={product}
+        telegramBotUrl={settings?.telegramBotUrl}
+        telegramOrderEnabled={settings?.telegramOrderEnabled ?? true}
+      />
     </section>
   );
 }

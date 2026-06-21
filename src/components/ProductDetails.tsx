@@ -1,13 +1,15 @@
 import ProductGallery from "./ProductGallery";
-import TelegramOrderButton from "./TelegramOrderButton";
+import ProductActions from "./ProductActions";
 import type { Product } from "@/lib/types";
 
 export default function ProductDetails({
   product,
   telegramBotUrl,
+  telegramOrderEnabled = true,
 }: {
   product: Product;
   telegramBotUrl?: string;
+  telegramOrderEnabled?: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -28,9 +30,9 @@ export default function ProductDetails({
           )}
         </div>
 
-        <TelegramOrderButton
-          productName={product.name}
-          selectedSize={null}
+        <ProductActions
+          product={product}
+          telegramOrderEnabled={telegramOrderEnabled}
           telegramBotUrl={telegramBotUrl}
         />
 

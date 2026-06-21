@@ -14,6 +14,8 @@ interface SettingsData {
   email?: string;
   address?: string;
   heroImage?: string;
+  cartEnabled?: boolean;
+  telegramOrderEnabled?: boolean;
 }
 
 export default function SettingsForm({
@@ -190,6 +192,42 @@ export default function SettingsForm({
             className={inputClass}
           />
         </div>
+      </fieldset>
+
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
+          Функции магазина
+        </legend>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="cartEnabled"
+            defaultChecked={settings?.cartEnabled ?? false}
+            className="mt-1 w-4 h-4 accent-primary"
+          />
+          <span>
+            <span className="block text-sm">Корзина и оформление заказа</span>
+            <span className="block text-xs text-muted mt-0.5">
+              Показывает кнопку «В корзину», иконку корзины и страницу оформления. Заказы попадают в раздел «Заказы».
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="telegramOrderEnabled"
+            defaultChecked={settings?.telegramOrderEnabled ?? true}
+            className="mt-1 w-4 h-4 accent-primary"
+          />
+          <span>
+            <span className="block text-sm">Кнопка «Заказать в Telegram»</span>
+            <span className="block text-xs text-muted mt-0.5">
+              Показывает кнопку заказа через Telegram на странице товара.
+            </span>
+          </span>
+        </label>
       </fieldset>
 
       <div className="pt-4">
