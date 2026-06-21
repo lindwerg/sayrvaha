@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      // Фото сжимаются в браузере перед загрузкой; лимит с запасом на пачку фото.
+      bodySizeLimit: "30mb",
     },
   },
 };

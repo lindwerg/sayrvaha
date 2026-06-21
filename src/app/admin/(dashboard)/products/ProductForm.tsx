@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { urlFor } from "@/lib/image";
 import { createProductAction, updateProductAction } from "../../actions";
+import { compressImage } from "@/lib/imageCompress";
 import type { SizeChartRow } from "@/lib/types";
 
 interface ProductData {
@@ -66,6 +67,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
   );
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [processing, setProcessing] = useState(false);
   const [showOldPrice, setShowOldPrice] = useState(product?.isOnSale ?? false);
   const [chart, setChart] = useState<SizeChartRow[]>(initChart(product?.sizeChart));
 
@@ -84,16 +86,25 @@ export default function ProductForm({ product }: { product?: ProductData }) {
     setPreviews((p) => p.filter((_, i) => i !== index));
   };
 
-  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setNewFiles((f) => [...f, ...files]);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () =>
-        setPreviews((p) => [...p, reader.result as string]);
-      reader.readAsDataURL(file);
-    });
     e.target.value = "";
+    if (files.length === 0) return;
+
+    // Сжимаем каждое фото в браузере (иначе крупные снимки с телефона
+    // превышают лимит запроса и карточка не сохраняется).
+    setProcessing(true);
+    try {
+      const compressed = await Promise.all(files.map((file) => compressImage(file)));
+      setNewFiles((f) => [...f, ...compressed]);
+      compressed.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => setPreviews((p) => [...p, reader.result as string]);
+        reader.readAsDataURL(file);
+      });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,16 +118,23 @@ export default function ProductForm({ product }: { product?: ProductData }) {
     newFiles.forEach((file) => fd.append("newImages", file));
     fd.set("sizeChart", JSON.stringify(chart));
 
-    const result = product
-      ? await updateProductAction(product._id, fd)
-      : await createProductAction(fd);
+    try {
+      const result = product
+        ? await updateProductAction(product._id, fd)
+        : await createProductAction(fd);
 
-    if (result && "error" in result && result.error) {
-      setError(result.error);
+      if (result && "error" in result && result.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        router.push("/admin/products");
+        router.refresh();
+      }
+    } catch {
+      setError(
+        "Не удалось сохранить. Возможно, фото слишком большие — попробуйте добавить меньше фото за раз.",
+      );
       setLoading(false);
-    } else {
-      router.push("/admin/products");
-      router.refresh();
     }
   };
 
@@ -349,21 +367,26 @@ export default function ProductForm({ product }: { product?: ProductData }) {
           className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:border file:border-border file:bg-white file:text-sm file:text-foreground file:cursor-pointer hover:file:bg-warm-gray"
         />
         <p className="text-xs text-muted mt-1">
-          Первое фото — главное в каталоге. Формат 3:4
+          Первое фото — главное в каталоге. Формат 3:4. Можно выбрать сразу несколько.
         </p>
+        {processing && (
+          <p className="text-xs text-primary mt-1">Обработка фото…</p>
+        )}
       </div>
 
       <div className="flex gap-3 pt-4">
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || processing}
           className="bg-primary text-white px-8 py-3 text-sm uppercase tracking-wider hover:bg-primary-dark transition-colors disabled:opacity-50"
         >
           {loading
             ? "Сохранение..."
-            : product
-              ? "Сохранить"
-              : "Создать товар"}
+            : processing
+              ? "Обработка фото…"
+              : product
+                ? "Сохранить"
+                : "Создать товар"}
         </button>
         <button
           type="button"
