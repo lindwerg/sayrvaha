@@ -19,4 +19,7 @@ echo "[start] Наполняю дефолтами (идемпотентно)..."
 node prisma/seed.mjs || true
 
 echo "[start] Запускаю Next.js на порту ${PORT:-3000}"
-exec npx next start -p "${PORT:-3000}"
+# Запускаем next напрямую через node (без обёрток npm/npx), чтобы процесс был
+# PID 1 и сам корректно обрабатывал SIGTERM при остановке/редеплое → выход с
+# кодом 0 (иначе Railway помечает остановку старого контейнера как «crash»).
+exec node node_modules/.bin/next start -p "${PORT:-3000}"

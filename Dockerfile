@@ -40,4 +40,6 @@ COPY --from=build /app/package.json ./package.json
 EXPOSE 3000
 
 # При старте: применяем миграции к базе на томе, наполняем дефолтами, запускаем сервер.
-CMD ["npm", "run", "start"]
+# Запускаем через sh напрямую (без npm-обёртки), чтобы Next стал PID 1 после exec
+# и корректно завершался по SIGTERM (иначе остановка старого контейнера = «crash»).
+CMD ["sh", "scripts/start.sh"]
