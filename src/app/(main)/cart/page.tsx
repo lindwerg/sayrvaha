@@ -3,6 +3,10 @@ import { getSiteSettings } from "@/lib/data";
 import CartView from "./CartView";
 import type { Metadata } from "next";
 
+// Динамический рендер: страница всегда читает актуальные настройки (тумблеры
+// корзины и онлайн-оплаты) из боевой БД, без статического кэша.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Корзина — BLISS brand",
 };
