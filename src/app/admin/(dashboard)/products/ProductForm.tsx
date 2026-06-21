@@ -62,12 +62,10 @@ export default function ProductForm({ product }: { product?: ProductData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [keptImages, setKeptImages] = useState<string[]>(
-    product?.images || [],
-  );
-  const [newFiles, setNewFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  const [processing, setProcessing] = useState(false);
+  // images — пути к уже сохранённым фото (существующие + только что загруженные).
+  // uploading — фото в процессе загрузки (превью + статус), показываются в конце.
+  const [images, setImages] = useState<string[]>(product?.images || []);
+  const [uploading, setUploading] = useState<{ id: string; preview: string; error: boolean }[]>([]);
   const [showOldPrice, setShowOldPrice] = useState(product?.isOnSale ?? false);
   const [chart, setChart] = useState<SizeChartRow[]>(initChart(product?.sizeChart));
 
@@ -77,35 +75,53 @@ export default function ProductForm({ product }: { product?: ProductData }) {
     );
   };
 
-  const removeExisting = (path: string) => {
-    setKeptImages((imgs) => imgs.filter((img) => img !== path));
+  const removeImage = (path: string) => {
+    setImages((imgs) => imgs.filter((img) => img !== path));
   };
 
-  const removeNew = (index: number) => {
-    setNewFiles((f) => f.filter((_, i) => i !== index));
-    setPreviews((p) => p.filter((_, i) => i !== index));
-  };
+  const readPreview = (file: File): Promise<string> =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
 
+  // Каждое выбранное фото грузим отдельным запросом сразу (надёжнее, чем слать
+  // все файлы вместе с формой). Последовательно — чтобы сохранить порядок.
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     e.target.value = "";
     if (files.length === 0) return;
+    setError(null);
 
-    // Сжимаем каждое фото в браузере (иначе крупные снимки с телефона
-    // превышают лимит запроса и карточка не сохраняется).
-    setProcessing(true);
-    try {
-      const compressed = await Promise.all(files.map((file) => compressImage(file)));
-      setNewFiles((f) => [...f, ...compressed]);
-      compressed.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = () => setPreviews((p) => [...p, reader.result as string]);
-        reader.readAsDataURL(file);
-      });
-    } finally {
-      setProcessing(false);
+    for (const original of files) {
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const compressed = await compressImage(original);
+      const preview = await readPreview(compressed);
+      setUploading((u) => [...u, { id, preview, error: false }]);
+
+      try {
+        const fd = new FormData();
+        fd.append("file", compressed);
+        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as { path?: string; error?: string };
+        if (!data.path) throw new Error(data.error || "Нет пути");
+        setImages((imgs) => [...imgs, data.path!]);
+        setUploading((u) => u.filter((it) => it.id !== id));
+      } catch {
+        setUploading((u) => u.map((it) => (it.id === id ? { ...it, error: true } : it)));
+        setError("Не удалось загрузить фото. Проверьте интернет и попробуйте снова.");
+      }
     }
   };
+
+  const dismissUploading = (id: string) => {
+    setUploading((u) => u.filter((it) => it.id !== id));
+  };
+
+  const isUploading = uploading.some((u) => !u.error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,8 +130,8 @@ export default function ProductForm({ product }: { product?: ProductData }) {
 
     const fd = new FormData(formRef.current!);
 
-    keptImages.forEach((img) => fd.append("existingImages", img));
-    newFiles.forEach((file) => fd.append("newImages", file));
+    // Все фото уже загружены отдельными запросами — передаём только их пути.
+    images.forEach((img) => fd.append("existingImages", img));
     fd.set("sizeChart", JSON.stringify(chart));
 
     try {
@@ -131,9 +147,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
         router.refresh();
       }
     } catch {
-      setError(
-        "Не удалось сохранить. Возможно, фото слишком большие — попробуйте добавить меньше фото за раз.",
-      );
+      setError("Не удалось сохранить. Попробуйте ещё раз.");
       setLoading(false);
     }
   };
@@ -322,7 +336,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
         <label className="block text-sm font-medium mb-1.5">Фото *</label>
 
         <div className="flex gap-3 flex-wrap mb-3">
-          {keptImages.map((img) => (
+          {images.map((img) => (
             <div key={img} className="relative group">
               <Image
                 src={urlFor(img).width(200).height(260).url()}
@@ -333,7 +347,7 @@ export default function ProductForm({ product }: { product?: ProductData }) {
               />
               <button
                 type="button"
-                onClick={() => removeExisting(img)}
+                onClick={() => removeImage(img)}
                 className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
               >
                 ×
@@ -341,20 +355,27 @@ export default function ProductForm({ product }: { product?: ProductData }) {
             </div>
           ))}
 
-          {previews.map((src, i) => (
-            <div key={`new-${i}`} className="relative group">
+          {uploading.map((item) => (
+            <div key={item.id} className="relative">
               <img
-                src={src}
+                src={item.preview}
                 alt=""
-                className="w-[100px] h-[130px] object-cover rounded border border-primary border-dashed"
+                className={`w-[100px] h-[130px] object-cover rounded border border-dashed ${
+                  item.error ? "border-red-400 opacity-60" : "border-primary"
+                }`}
               />
-              <button
-                type="button"
-                onClick={() => removeNew(i)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
-              >
-                ×
-              </button>
+              <div className="absolute inset-0 flex items-center justify-center rounded bg-black/35 text-white text-xs text-center px-1">
+                {item.error ? "Ошибка" : "Загрузка…"}
+              </div>
+              {item.error && (
+                <button
+                  type="button"
+                  onClick={() => dismissUploading(item.id)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -367,23 +388,23 @@ export default function ProductForm({ product }: { product?: ProductData }) {
           className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:border file:border-border file:bg-white file:text-sm file:text-foreground file:cursor-pointer hover:file:bg-warm-gray"
         />
         <p className="text-xs text-muted mt-1">
-          Первое фото — главное в каталоге. Формат 3:4. Можно выбрать сразу несколько.
+          Первое фото — главное в каталоге. Формат 3:4. Можно выбрать сразу несколько — каждое загрузится отдельно.
         </p>
-        {processing && (
-          <p className="text-xs text-primary mt-1">Обработка фото…</p>
+        {isUploading && (
+          <p className="text-xs text-primary mt-1">Загрузка фото…</p>
         )}
       </div>
 
       <div className="flex gap-3 pt-4">
         <button
           type="submit"
-          disabled={loading || processing}
+          disabled={loading || isUploading}
           className="bg-primary text-white px-8 py-3 text-sm uppercase tracking-wider hover:bg-primary-dark transition-colors disabled:opacity-50"
         >
           {loading
             ? "Сохранение..."
-            : processing
-              ? "Обработка фото…"
+            : isUploading
+              ? "Загрузка фото…"
               : product
                 ? "Сохранить"
                 : "Создать товар"}

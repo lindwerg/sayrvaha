@@ -131,7 +131,11 @@ export async function createProductAction(formData: FormData) {
   const maxOrder = await prisma.product.aggregate({ _max: { order: true } });
   const order = (maxOrder._max.order ?? -1) + 1;
 
-  const images = await uploadImages(formData);
+  // Фото грузятся отдельными запросами и приходят путями в existingImages.
+  // newImages оставлен для обратной совместимости (прямая отправка файлов).
+  const existing = parseExistingImages(formData);
+  const uploaded = await uploadImages(formData);
+  const images = [...existing, ...uploaded];
   if (images.length === 0) return { error: "Добавьте хотя бы одно фото" };
 
   await prisma.product.create({
