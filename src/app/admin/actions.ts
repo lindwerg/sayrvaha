@@ -241,6 +241,8 @@ export async function updateSettingsAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/cart");
   revalidatePath("/catalog");
+  revalidatePath("/sale");
+  revalidatePath("/catalog/[slug]", "page");
   revalidatePath("/contacts");
   return { success: true };
 }

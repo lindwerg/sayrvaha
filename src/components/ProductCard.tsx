@@ -10,7 +10,7 @@ export default function ProductCard({ product }: { product: Product }) {
     : null;
 
   return (
-    <div className="group block">
+    <div className="group flex flex-col h-full">
       <Link
         href={`/catalog/${product.slug.current}`}
         className="block"
@@ -52,7 +52,7 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-        <h3 className="text-sm font-medium mb-1 group-hover:text-primary transition-colors duration-300">
+        <h3 className="text-sm font-medium mb-1 line-clamp-2 min-h-[2.5rem] group-hover:text-primary transition-colors duration-300">
           {product.name}
         </h3>
         <p className="text-sm text-muted tracking-wide">
@@ -67,7 +67,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </p>
       </Link>
 
-      <div className="mt-3">
+      <div className="mt-auto pt-3">
         <AddToCartButton product={product} variant="compact" />
       </div>
     </div>
