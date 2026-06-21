@@ -3,6 +3,10 @@ import ProductDetails from "@/components/ProductDetails";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+// Динамический рендер: страница всегда читает актуальные настройки магазина
+// (тумблеры корзины/Telegram) и данные товара из боевой БД, без статического кэша.
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
